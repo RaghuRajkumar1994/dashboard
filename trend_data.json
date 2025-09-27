@@ -1,0 +1,92 @@
+[
+  {
+    "customer": "AUTOLIV INDIA PVT LTD",
+    "output": 271197,
+    "percent": 82
+  },
+  {
+    "customer": "AUTOLIV INDIA PVT LTD.",
+    "output": 610165,
+    "percent": 97
+  },
+  {
+    "customer": "Hyundai Mobis India Limited",
+    "output": 11162,
+    "percent": 68
+  },
+  {
+    "customer": "Joysonsafety",
+    "output": 641530,
+    "percent": 90
+  },
+  {
+    "customer": "Magneti Marelli Motherson Auto System",
+    "output": 3330,
+    "percent": 74
+  },
+  {
+    "customer": "Valeo-India",
+    "output": 24052,
+    "percent": 33
+  },
+  {
+    "customer": "ZF Rane",
+    "output": 258845,
+    "percent": 75
+  },
+  {
+    "customer": "Mahle",
+    "output": 23493,
+    "percent": 76
+  },
+  {
+    "customer": "Interface",
+    "output": 18328,
+    "percent": 86
+  },
+  {
+    "customer": "ITW",
+    "output": 10505,
+    "percent": 81
+  },
+  {
+    "customer": "ICHIKOH INDUSTRIES",
+    "output": 2099,
+    "percent": 97
+  },
+  {
+    "customer": "Sanden Vikas",
+    "output": 1555,
+    "percent": 46
+  },
+  {
+    "customer": "TATA",
+    "output": 763,
+    "percent": 7
+  },
+  {
+    "customer": "Tata Ficosa",
+    "output": 41352,
+    "percent": 69
+  },
+  {
+    "customer": "TATA MAGNA",
+    "output": 8670,
+    "percent": 53
+  },
+  {
+    "customer": "MSKH SEATING SYSTEMS",
+    "output": 34658,
+    "percent": 73
+  },
+  {
+    "customer": "Magna",
+    "output": 6608,
+    "percent": 99
+  },
+  {
+    "customer": "Varroc",
+    "output": 39069,
+    "percent": 78
+  }
+]

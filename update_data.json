@@ -1,0 +1,18 @@
+{
+  "Auto Crimp": 5000000,
+  "Semi Crimp": 2000000,
+  "Soldering": 500000,
+  "Shift A": 2500,
+  "Shift B": 2200,
+  "Shift C": 2100,
+  "MSF P2": 5.50,
+  "MSF P7": 8.25,
+  "Assembly P2": 150,
+  "Assembly P7": 60,
+  "MSF MTotal P2": 125,
+  "MSF MTotal P7": 120,
+  "Assembly MTotal P2": 1600,
+  "Assembly MTotal P7": 1550,
+  "Productivity": 80,
+  "LV Value": 12500000
+}
