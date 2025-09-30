@@ -1,30 +1,8 @@
-
-### B. `Procfile` (The Startup Command)
-
-This file tells Render exactly how to start your web process.
-
-| File | Content |
-| :--- | :--- |
-| **`Procfile`** | ```text
-web: gunicorn server:app
-``` |
-
-**This `gunicorn server:app` command is the standard startup command Render will use.**
-
----
-
-## 2. Updated Python Backend Code (`server.py`)
-
-This code replaces the unreliable local file reading/writing with an **in-memory database** for basic functionality on Render.
-
-> **⚠️ Note:** This data will reset if the Render service restarts. For persistent data, you must configure a cloud database (like MongoDB Atlas or Render's PostgreSQL).
-
-```python
 from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime # ✅ FIX: CRITICAL IMPORT FOR WORKER BOOT
 
 # --- Flask Setup ---
 app = Flask(__name__)
@@ -37,7 +15,7 @@ PORT = 8080
 BASE_API_URL = '/api'
 
 # ====================================================================
-# ✅ FIX: IN-MEMORY DATABASE (Data will reset on server restart!)
+# IN-MEMORY DATABASE (Data will reset on server restart!)
 # ====================================================================
 db_data = {
     'dashboard': {},
@@ -95,9 +73,8 @@ def write_db(key, data):
         print(f"Error writing {key} DB (In-Memory): {e}")
         return False
 
-# --- API Endpoints (UNCHANGED LOGIC) ---
+# --- API Endpoints ---
 
-# 1. DASHBOARD Data 
 @app.route(f'{BASE_API_URL}/dashboard/<monthKey>', methods=['GET'])
 def get_dashboard_data(monthKey):
     db = read_db('dashboard')
@@ -117,7 +94,6 @@ def update_dashboard_data(monthKey):
     else:
         return jsonify({"error": "Failed to write data to database."}), 500
 
-# 2. TREND Data 
 @app.route(f'{BASE_API_URL}/trend/<monthKey>', methods=['GET'])
 def get_trend_data(monthKey):
     db = read_db('trend')
@@ -137,7 +113,6 @@ def update_trend_data(monthKey):
     else:
         return jsonify({"error": "Failed to write trend data to database."}), 500
 
-# 3. NOTES Data 
 @app.route(f'{BASE_API_URL}/notes/<monthKey>', methods=['GET'])
 def get_notes(monthKey):
     db = read_db('notes')

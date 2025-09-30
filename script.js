@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ====================================================================
     // ✅ FIX: UPDATED API CONFIGURATION for PUBLIC DEPLOYMENT
     // >>> FINAL STEP: REPLACE THIS PLACEHOLDER with the actual public URL of your deployed Flask server. <<<
-    // Example: 'https://my-dashboard-api.onrender.com/api'
+    // Example: 'https://my-dashboard-api-xyz.onrender.com/api'
     // ====================================================================
-    const BASE_API_URL = 'https://YOUR-PUBLIC-API-DOMAIN.com/api'; // <--- CHANGED LINE
+    const BASE_API_URL = 'https://YOUR-PUBLIC-API-DOMAIN.com/api'; // <--- UPDATE THIS LINE
     
     // --- CONSTANTS AND STATE MANAGEMENT ---
     const THEME_KEY = 'dashboardTheme'; 
@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.status === 204 || method === 'DELETE') return null; 
             return await response.json();
         } catch (error) {
-            // Updated alert message to reflect the new API requirement
             console.error(`API Call failed for ${method} ${url}:`, error);
             alert(`Failed to connect to centralized database or API error: ${error.message}. Is your Python Flask server running on its PUBLIC URL and accessible?`);
             // Return empty data structure on failure to prevent app crash
