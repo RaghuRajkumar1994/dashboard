@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 import os
 import uuid
-from datetime import datetime # ✅ FIX: CRITICAL IMPORT FOR WORKER BOOT
+from datetime import datetime 
 
 # --- Flask Setup ---
 app = Flask(__name__)
@@ -10,7 +10,6 @@ app = Flask(__name__)
 CORS(app) 
 
 # --- Configuration ---
-# Use the environment PORT variable for cloud hosting compatibility
 PORT = 8080 
 BASE_API_URL = '/api'
 
@@ -25,6 +24,7 @@ db_data = {
 
 def get_current_month_key():
     """Utility to get the current month key for initial data loading."""
+    # datetime import is crucial for Gunicorn worker boot
     return datetime.now().strftime('%Y-%m')
 
 # Initialize with initial data to ensure the API doesn't return empty for the current month
