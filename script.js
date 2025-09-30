@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ====================================================================
-    // ⚠️ API CONFIGURATION: MUST MATCH YOUR PYTHON FLASK SERVER PORT ⚠️
+    // ✅ FIX: UPDATED API CONFIGURATION for PUBLIC DEPLOYMENT
+    // >>> FINAL STEP: REPLACE THIS PLACEHOLDER with the actual public URL of your deployed Flask server. <<<
+    // Example: 'https://my-dashboard-api.onrender.com/api'
     // ====================================================================
-    const BASE_API_URL = 'http://localhost:3000/api';
+    const BASE_API_URL = 'https://YOUR-PUBLIC-API-DOMAIN.com/api'; // <--- CHANGED LINE
     
     // --- CONSTANTS AND STATE MANAGEMENT ---
     const THEME_KEY = 'dashboardTheme'; 
@@ -47,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.status === 204 || method === 'DELETE') return null; 
             return await response.json();
         } catch (error) {
+            // Updated alert message to reflect the new API requirement
             console.error(`API Call failed for ${method} ${url}:`, error);
-            alert(`Failed to connect to centralized database or API error: ${error.message}. Is your Python Flask server running on http://localhost:3000?`);
+            alert(`Failed to connect to centralized database or API error: ${error.message}. Is your Python Flask server running on its PUBLIC URL and accessible?`);
             // Return empty data structure on failure to prevent app crash
             if (endpoint.includes('/notes')) return [];
             if (endpoint.includes('/trend')) return [];
@@ -150,7 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function addNoteToDB(noteText) {
         const endpoint = `/notes/${currentMonthKey}`;
-        const newNote = { text: noteText, timestamp: new Date().toISOString() };
+        // The server will assign the ID and timestamp
+        const newNote = { text: noteText }; 
         const response = await makeApiCall(endpoint, 'POST', newNote);
         if (response) {
             loadAllDashboardData(); // Reload notes
@@ -165,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- DATA HANDLING AND UI UPDATES ---
+    // --- DATA HANDLING AND UI UPDATES (No changes needed here as it uses the API functions) ---
     
     function handleManualDataUpdate() {
         const form = document.getElementById('daily-data-form');
@@ -431,12 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const notesCount = notes.length;
         updateNoteCount(notesCount);
 
-        notes.forEach(note => {
+        notes.forEach(note => { 
+            const noteId = note.id; // Server now guarantees a UUID
             const noteDiv = document.createElement('div');
             noteDiv.className = 'note-item';
             noteDiv.innerHTML = `
                 <span>${note.text}</span>
-                <button class="remove-note-btn" data-id="${note.id}" style="background: none; border: none; color: var(--error-color); font-weight: bold; font-size: 1.2em; cursor: pointer;">&times;</button>
+                <button class="remove-note-btn" data-id="${noteId}" style="background: none; border: none; color: var(--error-color); font-weight: bold; font-size: 1.2em; cursor: pointer;">&times;</button>
             `;
             notesList.appendChild(noteDiv);
         });
@@ -451,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('notes-count-header').textContent = `(${count})`;
     }
 
-    // --- FILE UPLOAD HANDLERS ---
+    // --- FILE UPLOAD HANDLERS (UNCHANGED) ---
 
     function handleAutoUpdate(event) {
         handleFileSelect(event, 'dashboard');
@@ -544,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 🏆 FIX FOR DASHBOARD DATABASE UPLOAD
+    // 🏆 Robust Logic for File Upload Handlers (Kept Robust)
     async function processJSONDashboardData(data) {
         let dashboardObject = data;
         
@@ -582,7 +587,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal('update-choice-modal');
     }
 
-    // 🚀 Robust Logic for Trend JSON Format
     async function processJSONTrendData(data) {
         let trendArray = null;
 
@@ -622,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await updateTrendData(processedArray);
             closeModal('trend-update-choice-modal');
         } else {
-            alert(`JSON Trend file is incorrectly formatted. The tool could not find a suitable array of customer objects. Please ensure the top level of your JSON file is either the array itself, or an object containing the array under key "${currentMonthKey}", "customers", or another array-holding key.`);
+            alert(`JSON Trend file is incorrectly formatted. The expected structure is an array of objects like: [{"customer": "Name", "output": 123, "percent": 90}].`);
         }
     }
 
