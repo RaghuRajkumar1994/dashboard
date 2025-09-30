@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // >>> FINAL STEP: REPLACE THIS PLACEHOLDER with the actual public URL of your deployed Flask server. <<<
     // Example: 'https://my-dashboard-api-xyz.onrender.com/api'
     // ====================================================================
-    const BASE_API_URL = 'https://YOUR-PUBLIC-API-DOMAIN.com/api'; // <--- UPDATE THIS LINE
+    const BASE_API_URL = 'https://dashboard-1l7a.onrender.com/api'; // <--- UPDATED THIS LINE
     
     // --- CONSTANTS AND STATE MANAGEMENT ---
     const THEME_KEY = 'dashboardTheme'; 
