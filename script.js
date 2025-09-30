@@ -1,34 +1,73 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- CONSTANTS AND STATE MANAGEMENT ---
-    const DASHBOARD_DATA_KEY = 'dashboardData';
-    const TREND_DATA_KEY = 'productionTrendData';
-    const NOTES_KEY = 'dashboardNotes';
-    const THEME_KEY = 'dashboardTheme';
-    const PASSWORD = '123'; // Securely handle in a real app
+    // ====================================================================
+    // ⚠️ API CONFIGURATION: MUST MATCH YOUR PYTHON FLASK SERVER PORT ⚠️
+    // ====================================================================
+    const BASE_API_URL = 'http://localhost:3000/api';
     
-    // UNC Network Path for shared files
-    const SHARED_FOLDER_PATH = '\\\\192.168.4.6\\CCS Lab\\raghu';
+    // --- CONSTANTS AND STATE MANAGEMENT ---
+    const THEME_KEY = 'dashboardTheme'; 
+    const PASSWORD = '123'; 
     
     let productionTrendData = [];
     let currentAction = '';
     let currentUser = '';
-    
     let currentMonthKey = ''; 
 
-    // --- INITIALIZATION ---
-    async function initialize() { 
-        setInitialMonth();
-        loadTheme();
-        // Wait for data to load from JSON or localStorage
-        await loadDashboardData(); 
-        await loadProductionTrendData(); 
-        loadNotes();
-        attachEventListeners();
+    // --- UTILITY: API CALL WRAPPER (Includes Cache Buster) ---
+    async function makeApiCall(endpoint, method = 'GET', data = null) {
+        let url = `${BASE_API_URL}${endpoint}`;
+        
+        // FIX: Add a cache-buster parameter to prevent the browser from serving old data
+        if (method === 'GET') {
+            url += (url.includes('?') ? '&' : '?') + '_t=' + new Date().getTime();
+        }
+        
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                let errorDetails = `HTTP error! Status: ${response.status}`;
+                try {
+                    const errorJson = await response.json();
+                    errorDetails += `, Details: ${JSON.stringify(errorJson)}`;
+                } catch (e) { /* Ignore non-json body */ }
+                throw new Error(errorDetails);
+            }
+            // Handle 204 No Content 
+            if (response.status === 204 || method === 'DELETE') return null; 
+            return await response.json();
+        } catch (error) {
+            console.error(`API Call failed for ${method} ${url}:`, error);
+            alert(`Failed to connect to centralized database or API error: ${error.message}. Is your Python Flask server running on http://localhost:3000?`);
+            // Return empty data structure on failure to prevent app crash
+            if (endpoint.includes('/notes')) return [];
+            if (endpoint.includes('/trend')) return [];
+            return {};
+        }
     }
 
+    // --- INITIALIZATION & DATA LOADING ---
+    function initialize() {
+        setInitialMonth();
+        loadTheme();
+        loadAllDashboardData(); 
+        attachEventListeners();
+    }
+    
     function setInitialMonth() {
         const now = new Date();
         const year = now.getFullYear();
+        // Sets month to the current month 
         const month = String(now.getMonth() + 1).padStart(2, '0'); 
         const monthSelector = document.getElementById('month-selector');
         
@@ -37,252 +76,237 @@ document.addEventListener('DOMContentLoaded', () => {
         
         currentMonthKey = defaultMonth; 
     }
-
-    // --- EVENT LISTENERS ---
-    function attachEventListeners() {
-        document.getElementById('open-update-btn').addEventListener('click', () => {
-            showPasswordModal('update_dashboard'); // Action for main dashboard update
-        });
-
-        document.getElementById('open-trend-update-btn').addEventListener('click', () => {
-            showPasswordModal('update_trend'); // Action for trend update
-        });
-        
-        document.getElementById('month-selector').addEventListener('change', handleMonthChange);
-
-        // Dashboard Update Choice Handlers
-        document.getElementById('manual-update-btn').addEventListener('click', () => {
-            closeModal('update-choice-modal');
-            openModal('data-entry-modal');
-        });
-        
-        // MODIFIED: Automatic update loads update_data.json directly
-        document.getElementById('auto-update-btn').addEventListener('click', handleFixedPathDashboardUpdate);
-        
-        // Trend Update Choice Handlers
-        document.getElementById('manual-trend-update-btn').addEventListener('click', () => {
-            closeModal('trend-update-choice-modal');
-            openModal('trend-entry-modal');
-        });
-        
-        // MODIFIED: Automatic trend update loads trend_data.json directly
-        document.getElementById('auto-trend-update-btn').addEventListener('click', handleFixedPathTrendUpdate);
-
-        document.getElementById('theme-selector').addEventListener('change', (e) => setTheme(e.target.value));
-
-        document.querySelectorAll('[data-modal]').forEach(btn => {
-            btn.addEventListener('click', (e) => openModal(e.target.dataset.modal));
-        });
-        document.querySelectorAll('.modal-close-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => closeModal(e.target.dataset.modalId));
-        });
-        document.querySelectorAll('.shortcut-item').forEach(item => {
-            item.addEventListener('click', (e) => openShortcutLink(e.target.dataset.link));
-        });
-        document.querySelectorAll('.user-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => showPasswordModal('user', e.target.dataset.user));
-        });
-        
-        document.getElementById('edit-customer-select').addEventListener('change', populateTrendFields);
-        document.getElementById('updateDashboardBtn').addEventListener('click', handleManualDataUpdate);
-        document.getElementById('updateTrendBtn').addEventListener('click', handleTrendUpdate);
-        document.getElementById('removeTrendBtn').addEventListener('click', handleTrendRemoval);
-        document.getElementById('addNoteBtn').addEventListener('click', handleNoteAddition);
-        document.getElementById('openMail').addEventListener('click', openOutlook);
-        document.getElementById('submitBtn').addEventListener('click', handlePasswordSubmit);
-        document.getElementById('changePasswordBtn').addEventListener('click', handleChangePassword);
-        document.querySelector('.change-password-link').addEventListener('click', showChangePasswordForm);
-        document.getElementById('cancelChangeBtn').addEventListener('click', showLoginForm);
-    }
-
-    async function handleMonthChange(e) {
-        currentMonthKey = e.target.value; 
-        await loadDashboardData();
-        await loadProductionTrendData();
-    }
-
-    // --- AUTOMATIC UPDATE FUNCTIONS ---
-
-    // Function for Main Dashboard Auto-Update from fixed JSON file
-    async function handleFixedPathDashboardUpdate() {
-        closeModal('update-choice-modal'); // Close the choice modal
-
-        try {
-            const response = await fetch('update_data.json');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const dataToSave = await response.json();
-            
-            if (dataToSave && typeof dataToSave === 'object' && Object.keys(dataToSave).length > 0) {
-                saveDashboardData(dataToSave, true); // Save data and show alert
-            } else {
-                 alert("Error: The update_data.json file is empty or not valid data.");
-            }
-
-        } catch (error) {
-            console.error("Error loading automatic dashboard update from JSON:", error);
-            alert(`Error: Could not automatically load data from update_data.json. Check the file path and content. Details: ${error.message}`);
-        }
-    }
     
-    // Function for Production Trend Auto-Update from fixed JSON file
-    async function handleFixedPathTrendUpdate() {
-        closeModal('trend-update-choice-modal'); // Close the choice modal
-
-        try {
-            const response = await fetch('trend_data.json');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const trendDataArray = await response.json();
-            
-            if (Array.isArray(trendDataArray) && trendDataArray.length > 0) {
-                const isValid = trendDataArray.every(item => 
-                    item.customer && typeof item.customer === 'string' && 
-                    ('output' in item) && ('percent' in item)
-                );
-
-                if (isValid) {
-                    // Map to ensure correct numerical types
-                    productionTrendData = trendDataArray.map(item => ({
-                        customer: item.customer,
-                        output: Number(item.output) || 0,
-                        percent: Number(item.percent) || 0 
-                    }));
-
-                    saveProductionTrendData(true); // Save data and show alert
-                } else {
-                    alert("Error: The trend_data.json file contains invalid entries. Each item must be an object with 'customer' (string), 'output' (number), and 'percent' (number).");
-                }
-            } else {
-                alert("Error: The trend_data.json file is empty or not a valid JSON array.");
-            }
-
-        } catch (error) {
-            console.error("Error loading automatic trend update from JSON:", error);
-            alert(`Error: Could not automatically load trend data from trend_data.json. Check the file path and content. Details: ${error.message}`);
-        }
-    }
-
-
-    // --- DATA HANDLING & PERSISTENCE ---
-
-    function getDashboardDataKey() {
-        return `${DASHBOARD_DATA_KEY}_${currentMonthKey}`;
-    }
-
-    async function loadDashboardData() { 
-        const storedData = localStorage.getItem(getDashboardDataKey());
-        let data = {};
-
-        if (storedData) {
-            data = JSON.parse(storedData);
-        } else {
-            // Logic for initial load on a new month/browser clear (default automatic load)
-            try {
-                const response = await fetch('update_data.json'); 
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const initialData = await response.json();
-                
-                // Save the fetched data to localStorage for the current month
-                saveDashboardData(initialData, false); // Pass false to skip alert
-                data = initialData;
-                alert(`Dashboard data initialized from update_data.json for ${currentMonthKey}.`);
-
-            } catch (error) {
-                console.error("Error loading initial dashboard data from JSON:", error);
-                // The alert here is for the initial load, not the button click, but still helpful
-                // Removed the alert here to reduce redundancy, as the function below handles UI update even on failure
-                data = {}; 
-            }
-        }
+    // Central loading function
+    async function loadAllDashboardData() {
+        // Fetch all resources concurrently 
+        const [dashboardData, trendData, notesData] = await Promise.all([
+            fetchDashboardData(currentMonthKey),
+            fetchTrendData(currentMonthKey),
+            fetchNotes(currentMonthKey)
+        ]);
         
-        resetManualForm();
-        updateDashboardUI(data);
-    }
-    
-    function saveDashboardData(data, showAlert = true) {
-        const currentData = JSON.parse(localStorage.getItem(getDashboardDataKey()) || '{}');
-        const newData = { ...currentData, ...data };
-        localStorage.setItem(getDashboardDataKey(), JSON.stringify(newData));
-        if (showAlert) {
-            alert(`Dashboard updated successfully for ${currentMonthKey}!`);
-        }
-        loadDashboardData();
-    }
-    
-    function getTrendDataKey() {
-        return `${TREND_DATA_KEY}_${currentMonthKey}`;
-    }
-
-    async function loadProductionTrendData() { 
-        const storedTrendData = localStorage.getItem(getTrendDataKey());
+        // Update UI with fetched data
+        updateDashboardUI(dashboardData);
         
-        if (storedTrendData) {
-            productionTrendData = JSON.parse(storedTrendData);
-        } else {
-            // Logic for initial load on a new month/browser clear (default automatic load)
-            try {
-                const response = await fetch('trend_data.json'); 
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const fetchedTrendData = await response.json();
-                
-                productionTrendData = fetchedTrendData.map(item => ({
-                    customer: item.customer, 
-                    output: Number(item.output) || 0, 
-                    percent: Number(item.percent) || 0 
-                }));
-                
-                // Save the fetched data to localStorage 
-                saveProductionTrendData(false); 
-                alert(`Production trend data initialized from trend_data.json for ${currentMonthKey}.`);
-
-            } catch (error) {
-                console.error("Error loading initial trend data from JSON:", error);
-                // Fallback to empty array if fetch fails
-                productionTrendData = []; 
-            }
-        }
-        
+        // Update Trend Data State and UI
+        productionTrendData = trendData;
         populateProductionTrendTable(productionTrendData);
-        populateTrendDropdowns();
+        populateTrendDropdowns(); // Populates the <datalist>
         updateScheduleAverageMeter();
+        
+        // Update Notes UI
+        renderNotes(notesData);
+    }
+    
+    function handleMonthChange(e) {
+        currentMonthKey = e.target.value; 
+        loadAllDashboardData(); // Reloads the UI for the selected month
     }
 
-    function saveProductionTrendData(showAlert = true) {
-        localStorage.setItem(getTrendDataKey(), JSON.stringify(productionTrendData));
-        if (showAlert) {
-            alert(`Production Trend updated successfully for ${currentMonthKey}!`);
+    // --- DATA FETCHING & PERSISTENCE (API CALLS) ---
+
+    async function fetchDashboardData(monthKey) {
+        const endpoint = `/dashboard/${monthKey}`;
+        const data = await makeApiCall(endpoint);
+        return data || {};
+    }
+    
+    async function updateDashboardData(data) {
+        const endpoint = `/dashboard/${currentMonthKey}`;
+        const response = await makeApiCall(endpoint, 'POST', data);
+        
+        if (response || response === null) {
+            alert(`Dashboard updated successfully for ${currentMonthKey} via API!`);
+            // FIX: Reload the data after the successful update (Cache-buster helps this)
+            loadAllDashboardData(); 
         }
-        loadProductionTrendData(); 
     }
     
-    // --- UI RENDERING FUNCTIONS (mostly unchanged) ---
-    
-    function resetManualForm() {
-        document.querySelectorAll('#daily-data-form input').forEach(input => {
-            input.value = '';
-        });
+    async function fetchTrendData(monthKey) {
+        const endpoint = `/trend/${monthKey}`;
+        const data = await makeApiCall(endpoint);
+        
+        if (!data || data.length === 0) {
+            return []; 
+        }
+        return data;
     }
 
+    async function updateTrendData(data) {
+        const endpoint = `/trend/${currentMonthKey}`;
+        const response = await makeApiCall(endpoint, 'POST', data);
+        if (response || response === null) {
+            alert(`Production Trend updated successfully for ${currentMonthKey} via API!`);
+            loadAllDashboardData(); // Reload UI
+        }
+    }
+    
+    async function fetchNotes(monthKey) {
+        const endpoint = `/notes/${monthKey}`;
+        const data = await makeApiCall(endpoint);
+        return Array.isArray(data) ? data : []; 
+    }
+    
+    async function addNoteToDB(noteText) {
+        const endpoint = `/notes/${currentMonthKey}`;
+        const newNote = { text: noteText, timestamp: new Date().toISOString() };
+        const response = await makeApiCall(endpoint, 'POST', newNote);
+        if (response) {
+            loadAllDashboardData(); // Reload notes
+        }
+    }
+    
+    async function deleteNoteFromDB(noteId) {
+        const endpoint = `/notes/${currentMonthKey}/${noteId}`;
+        const response = await makeApiCall(endpoint, 'DELETE');
+        if (response === null) { // Success (204 No Content)
+            loadAllDashboardData(); // Reload notes
+        }
+    }
+
+    // --- DATA HANDLING AND UI UPDATES ---
+    
+    function handleManualDataUpdate() {
+        const form = document.getElementById('daily-data-form');
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            // Handle empty strings as 0 when converting to number
+            data[key] = value === '' ? 0 : isNaN(Number(value)) ? value : Number(value); 
+        });
+        
+        const updatedData = {
+            'Auto Crimp': data['autoCrimpOutput'],
+            'Semi Crimp': data['semiCrimpOutput'],
+            'Soldering': data['solderingOutput'],
+            'Shift A': data['shiftAValue'],
+            'Shift B': data['shiftBValue'],
+            'Shift C': data['shiftCValue'],
+            'MSF P2': data['msfP2'],
+            'MSF P7': data['msfP7'],
+            'MSF MTotal P2': data['mTotalMsfP2'],
+            'MSF MTotal P7': data['mTotalMsfP7'],
+            'Assembly MTotal P2': data['mTotalAssemblyP2'],
+            'Assembly MTotal P7': data['mTotalAssemblyP7'],
+            'Assembly P2': data['assemblyP2'],
+            'Assembly P7': data['assemblyP7'],
+            'Productivity': data['productivityValue'],
+            'LV Value': data['lvProductionValue'],
+        };
+        
+        updateDashboardData(updatedData);
+        closeModal('data-entry-modal');
+    }
+    
+    // Handles adding a NEW customer or updating an EXISTING one
+    async function handleTrendUpdate() {
+        const customerName = document.getElementById('edit-customer-input').value.trim();
+        const newOutput = Number(document.getElementById('edit-output').value);
+        const newPercent = Number(document.getElementById('edit-percent').value);
+
+        if (!customerName || isNaN(newOutput) || isNaN(newPercent)) {
+            alert('Please enter a valid Customer Name, Output, and Percentage.');
+            return;
+        }
+        
+        // Case-insensitive search
+        const customerIndex = productionTrendData.findIndex(item => item.customer.toLowerCase() === customerName.toLowerCase());
+
+        if (customerIndex !== -1) {
+            // Update existing customer
+            productionTrendData[customerIndex].output = newOutput;
+            productionTrendData[customerIndex].percent = newPercent;
+        } else {
+            // ADD NEW customer
+            productionTrendData.push({ 
+                customer: customerName, 
+                output: newOutput, 
+                percent: newPercent 
+            });
+            alert(`New customer "${customerName}" added!`);
+        }
+        
+        await updateTrendData(productionTrendData);
+        closeModal('trend-entry-modal');
+    }
+    
+    async function handleTrendRemoval() {
+        const customerName = document.getElementById('edit-customer-input').value.trim();
+        
+        if (!customerName) {
+            alert('Please enter or select a customer name to remove.');
+            return;
+        }
+        
+        const initialLength = productionTrendData.length;
+        // Filter out the customer (case-insensitive filter)
+        productionTrendData = productionTrendData.filter(item => item.customer.toLowerCase() !== customerName.toLowerCase());
+        
+        if (productionTrendData.length === initialLength) {
+            alert(`Customer "${customerName}" not found.`);
+            return;
+        }
+        
+        await updateTrendData(productionTrendData);
+        
+        // Clear fields after removal
+        document.getElementById('edit-customer-input').value = '';
+        document.getElementById('edit-output').value = '';
+        document.getElementById('edit-percent').value = '';
+    }
+
+    function handleNoteAddition() {
+        const noteInput = document.getElementById('note-input');
+        const noteText = noteInput.value.trim();
+        
+        if (noteText) {
+            addNoteToDB(noteText);
+            noteInput.value = ''; 
+        }
+    }
+
+    function removeNote(noteId) {
+        deleteNoteFromDB(noteId);
+    }
+    
+    // Populates the <datalist> element
+    function populateTrendDropdowns() {
+        const datalist = document.getElementById('customer-list');
+        datalist.innerHTML = '';
+        
+        productionTrendData.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.customer;
+            datalist.appendChild(option);
+        });
+        
+        // Clear fields on refresh
+        document.getElementById('edit-customer-input').value = '';
+        document.getElementById('edit-output').value = '';
+        document.getElementById('edit-percent').value = '';
+    }
+    
+    // Reads from the INPUT field and populates Output/Percent
+    function populateTrendFields() {
+        const customerName = document.getElementById('edit-customer-input').value.trim();
+        const customer = productionTrendData.find(item => item.customer.toLowerCase() === customerName.toLowerCase());
+        
+        document.getElementById('edit-output').value = '';
+        document.getElementById('edit-percent').value = '';
+
+        if (customer) {
+            document.getElementById('edit-output').value = customer.output;
+            document.getElementById('edit-percent').value = customer.percent;
+        }
+    }
+    
+    // --- UI RENDERING FUNCTIONS (UNCHANGED) ---
+    
     function updateDashboardUI(data) {
         const updateElement = (elementId, value) => {
             const element = document.getElementById(elementId);
             if (element && value !== undefined && value !== null && value !== '') {
-                // Ensure value is formatted correctly for display
                 let formattedValue = value;
                 if (typeof value === 'number' || !isNaN(Number(value))) {
                     const num = Number(value);
@@ -324,31 +348,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data['LV Value'] !== undefined && data['LV Value'] !== null && data['LV Value'] !== '') {
             document.getElementById('lv-production-value').textContent = `${Number(data['LV Value']).toLocaleString('en-IN')}`;
         } else {
-             document.getElementById('lv-production-value').textContent = `0`;
+            document.getElementById('lv-production-value').textContent = `0`;
         }
-
-        updateChart('productivity-value', '.productivity-chart', data['Productivity']);
         
+        updateChart('productivity-value', '.productivity-chart', data['Productivity']);
+
         const shiftA = Number(data['Shift A']) || 0;
         const shiftB = Number(data['Shift B']) || 0;
         const shiftC = Number(data['Shift C']) || 0;
-
         const allShiftsPresent = shiftA > 0 || shiftB > 0 || shiftC > 0;
-        
+
         if (allShiftsPresent) {
             const sum = shiftA + shiftB + shiftC;
             const count = (shiftA > 0) + (shiftB > 0) + (shiftC > 0);
             const avg = sum / count;
-            document.getElementById('cuts-average-value').textContent = Math.round(avg);
+            document.getElementById('cuts-average-value').textContent = Math.round(avg).toLocaleString('en-IN');
         } else {
-             document.getElementById('cuts-average-value').textContent = '0';
+            document.getElementById('cuts-average-value').textContent = '0';
         }
     }
-    
+
     function populateProductionTrendTable(data) {
         const tableBody = document.querySelector('#production-trend-table tbody');
         tableBody.innerHTML = '';
-        
         const paddedData = [...data];
         if (paddedData.length % 2 !== 0) {
             paddedData.push({ customer: '', output: '', percent: '' });
@@ -386,282 +408,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function calculateOverallPercentAverage() {
         if (productionTrendData.length === 0) return 0;
+
         const validEntries = productionTrendData.filter(item => item.percent !== undefined && item.percent !== null && !isNaN(Number(item.percent)) && Number(item.percent) >= 0);
+        
         if (validEntries.length === 0) return 0;
+
         const totalPercent = validEntries.reduce((sum, item) => sum + Number(item.percent), 0);
         return Math.round(totalPercent / validEntries.length);
     }
 
     function updateScheduleAverageMeter() {
-        const overallAverage = calculateOverallPercentAverage();
-        const valueElement = document.getElementById('schedule-value');
-        const chartElement = document.querySelector('.schedule-chart');
+        const avg = calculateOverallPercentAverage();
+        const percentage = avg > 100 ? 100 : avg; 
         
-        if (valueElement && chartElement) {
-            valueElement.textContent = `${overallAverage}%`;
-            chartElement.style.background = `conic-gradient(var(--accent-color-2) ${overallAverage}%, transparent 0)`;
-        }
-    }
-
-    // --- THEME LOGIC (unchanged) ---
-    function setTheme(themeName) {
-        document.documentElement.setAttribute('data-theme', themeName);
-        localStorage.setItem(THEME_KEY, themeName);
-        updateScheduleAverageMeter();
-        loadDashboardData(); 
-    }
-
-    function loadTheme() {
-        const currentTheme = localStorage.getItem(THEME_KEY) || 'default';
-        setTheme(currentTheme);
-        document.getElementById('theme-selector').value = currentTheme;
-    }
-
-    // --- MODAL & AUTHENTICATION LOGIC (unchanged) ---
-    function openModal(modalId) {
-        if (modalId === 'trend-entry-modal') {
-            populateTrendDropdowns();
-            resetTrendForm();
-        }
-        document.getElementById(modalId).style.display = 'flex';
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-        document.getElementById('password-input').value = '';
-    }
-
-    function showPasswordModal(action, user = '') {
-        currentAction = action;
-        currentUser = user;
-        document.getElementById('password-modal').style.display = 'flex';
-        showLoginForm();
-    }
-
-    function showLoginForm() {
-        document.getElementById('password-modal-header').textContent = 'ACCESS REQUIRED';
-        document.getElementById('login-form-content').style.display = 'block';
-        document.getElementById('change-form-content').style.display = 'none';
-        document.getElementById('password-input').focus();
-    }
-
-    function showChangePasswordForm() {
-        document.getElementById('password-modal-header').textContent = 'CHANGE PASSWORD';
-        document.getElementById('login-form-content').style.display = 'none';
-        document.getElementById('change-form-content').style.display = 'block';
-        document.getElementById('old-password-input').value = '';
-        document.getElementById('new-password-input').value = '';
-    }
-
-    function handlePasswordSubmit() {
-        const password = document.getElementById('password-input').value;
-        if (password === PASSWORD) {
-            closeModal('password-modal');
-            
-            if (currentAction === 'update_dashboard') {
-                openModal('update-choice-modal'); // Dashboard choice modal
-            } else if (currentAction === 'update_trend') {
-                openModal('trend-update-choice-modal'); // Trend choice modal
-            } else if (currentAction === 'user') {
-                const userPathMap = {
-                    'kirushnaraj': SHARED_FOLDER_PATH,
-                    'siva': SHARED_FOLDER_PATH,
-                    'praveen': SHARED_FOLDER_PATH,
-                    'sandhosh': SHARED_FOLDER_PATH,
-                    'sathya': SHARED_FOLDER_PATH,
-                    'raghu': SHARED_FOLDER_PATH,
-                };
-                const userFolderPath = userPathMap[currentUser] || 'Shared Network Folder Unavailable';
-                
-                // Attempt to copy path to clipboard (Windows File Explorer uses the UNC path)
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(userFolderPath).then(() => {
-                        alert(`Access granted for ${currentUser}!\n\nShared Folder path copied to clipboard:\n${userFolderPath}\n\n**Paste this path into your Windows File Explorer.**`);
-                    }).catch(err => {
-                        alert(`Access granted for ${currentUser}!\n\nShared Folder path:\n${userFolderPath}\n\nDue to security, please copy and paste this path manually into your Windows File Explorer.`);
-                    });
-                } else {
-                    alert(`Access granted for ${currentUser}!\n\nShared Folder path:\n${userFolderPath}\n\nDue to security, please copy and paste this path manually into your Windows File Explorer.`);
-                }
-            }
-        } else {
-            alert("Incorrect password. Access denied.");
-        }
-    }
-
-    function handleChangePassword() {
-        const oldPassword = document.getElementById('old-password-input').value;
-        const newPassword = document.getElementById('new-password-input').value;
-        
-        if (oldPassword === PASSWORD) {
-            if (newPassword.length >= 4) {
-                alert("Password changed successfully!");
-                closeModal('password-modal');
-            } else {
-                alert("New password must be at least 4 characters long.");
-            }
-        } else {
-            alert("Incorrect old password. Please try again.");
-        }
-    }
-
-    // --- DATA UPDATE LOGIC (Manual) (unchanged) ---
-    function handleManualDataUpdate() {
-        const data = {};
-        const inputs = document.querySelectorAll('#daily-data-form input');
-        let hasData = false;
-
-        inputs.forEach(input => {
-            if (input.value !== '') {
-                hasData = true;
-                let key = input.id.replace('manual-', '');
-                
-                const keyMap = {
-                    'auto-crimp': 'Auto Crimp',
-                    'semi-crimp': 'Semi Crimp',
-                    'soldering': 'Soldering',
-                    'shift-a': 'Shift A',
-                    'shift-b': 'Shift B',
-                    'shift-c': 'Shift C',
-                    'msf-p2': 'MSF P2',
-                    'msf-p7': 'MSF P7',
-                    'msf-mtotal-p2': 'MSF MTotal P2',
-                    'msf-mtotal-p7': 'MSF MTotal P7',
-                    'assembly-p2': 'Assembly P2',
-                    'assembly-p7': 'Assembly P7',
-                    'assembly-mtotal-p2': 'Assembly MTotal P2',
-                    'assembly-mtotal-p7': 'Assembly MTotal P7',
-                    'productivity': 'Productivity',
-                    'lv-value': 'LV Value',
-                };
-
-                const mappedKey = keyMap[key.toLowerCase()] || key;
-                data[mappedKey] = input.type === 'number' ? Number(input.value) : input.value;
-            }
-        });
-
-        if (hasData) {
-            saveDashboardData(data);
-            closeModal('data-entry-modal');
-        } else {
-            alert("Please enter data in at least one field to update the dashboard.");
-        }
+        document.getElementById('schedule-value').textContent = `${percentage}%`;
+        document.querySelector('.schedule-chart').style.background = `conic-gradient(var(--accent-color-2) ${percentage}%, transparent 0)`;
     }
     
-    // --- Trend Manual Update Logic (unchanged) ---
-    
-    function populateTrendDropdowns() {
-        const select = document.getElementById('edit-customer-select');
-        select.innerHTML = '<option value="">-- Select Customer --</option>';
-        productionTrendData.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.customer;
-            option.textContent = item.customer;
-            select.appendChild(option);
-        });
-    }
-
-    function populateTrendFields() {
-        const customerName = document.getElementById('edit-customer-select').value;
-        const entry = productionTrendData.find(item => item.customer === customerName);
-        
-        document.getElementById('edit-output').value = entry ? entry.output : '';
-        document.getElementById('edit-percent').value = entry ? entry.percent : '';
-    }
-
-    function resetTrendForm() {
-        document.getElementById('edit-customer-select').value = '';
-        document.getElementById('edit-output').value = '';
-        document.getElementById('edit-percent').value = '';
-    }
-
-    function handleTrendUpdate() {
-        const customerName = document.getElementById('edit-customer-select').value;
-        const newOutput = Number(document.getElementById('edit-output').value);
-        const newPercent = Number(document.getElementById('edit-percent').value);
-
-        if (!customerName) {
-            alert("Please select a customer to update.");
-            return;
-        }
-
-        const index = productionTrendData.findIndex(item => item.customer === customerName);
-        if (index !== -1) {
-            if (newOutput >= 0 && newPercent >= 0 && newPercent <= 100) {
-                productionTrendData[index].output = newOutput;
-                productionTrendData[index].percent = newPercent;
-                saveProductionTrendData();
-                closeModal('trend-entry-modal');
-            } else {
-                alert("Please ensure the output is positive/zero and the percentage is between 0 and 100.");
-            }
-        }
-    }
-
-    function handleTrendRemoval() {
-        const customerName = document.getElementById('edit-customer-select').value;
-        if (!customerName) {
-            alert("Please select a customer to remove.");
-            return;
-        }
-
-        if (confirm(`Are you sure you want to remove trend data for ${customerName} for ${currentMonthKey}?`)) {
-            productionTrendData = productionTrendData.filter(item => item.customer !== customerName);
-            saveProductionTrendData();
-            closeModal('trend-entry-modal');
-        }
-    }
-
-    // --- NOTES LOGIC (unchanged) ---
-    function loadNotes() {
-        const storedNotes = JSON.parse(localStorage.getItem(NOTES_KEY) || '[]');
-        updateNotesList(storedNotes);
-        updateNoteCount(storedNotes.length);
-    }
-
-    function saveNotes(notes) {
-        localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
-        updateNotesList(notes);
-        updateNoteCount(notes.length);
-    }
-
-    function handleNoteAddition() {
-        const noteInput = document.getElementById('note-input');
-        const newNote = noteInput.value.trim();
-
-        if (newNote) {
-            const notes = JSON.parse(localStorage.getItem(NOTES_KEY) || '[]');
-            notes.unshift(newNote); 
-            saveNotes(notes);
-            noteInput.value = '';
-        } else {
-            alert("Please enter a note.");
-        }
-    }
-
-    function removeNote(index) {
-        let notes = JSON.parse(localStorage.getItem(NOTES_KEY) || '[]');
-        notes.splice(index, 1);
-        saveNotes(notes);
-    }
-
-    function updateNotesList(notes) {
+    function renderNotes(notes) {
         const notesList = document.getElementById('notes-list');
         notesList.innerHTML = '';
+        const notesCount = notes.length;
+        updateNoteCount(notesCount);
 
-        notes.forEach((note, index) => {
+        notes.forEach(note => {
             const noteDiv = document.createElement('div');
-            noteDiv.classList.add('note-item');
-            noteDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; background-color: var(--secondary-bg); padding: 10px 15px; border-radius: 5px; margin-bottom: 10px;";
+            noteDiv.className = 'note-item';
             noteDiv.innerHTML = `
-                <span>${note}</span>
-                <button class="remove-note-btn" data-index="${index}" style="background: none; border: none; color: var(--error-color); font-size: 1.2em; cursor: pointer;">&times;</button>
+                <span>${note.text}</span>
+                <button class="remove-note-btn" data-id="${note.id}" style="background: none; border: none; color: var(--error-color); font-weight: bold; font-size: 1.2em; cursor: pointer;">&times;</button>
             `;
             notesList.appendChild(noteDiv);
         });
 
         notesList.querySelectorAll('.remove-note-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => removeNote(e.target.dataset.index));
+            btn.addEventListener('click', (e) => removeNote(e.target.dataset.id)); 
         });
     }
 
@@ -670,9 +451,278 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('notes-count-header').textContent = `(${count})`;
     }
 
-    // --- EXTERNAL LINKS (MOCK) (unchanged) ---
+    // --- FILE UPLOAD HANDLERS ---
+
+    function handleAutoUpdate(event) {
+        handleFileSelect(event, 'dashboard');
+    }
+    
+    function handleTrendAutoUpdate(event) {
+        handleFileSelect(event, 'trend');
+    }
+
+    function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const data = e.target.result;
+            const fileType = file.name.split('.').pop().toLowerCase();
+
+            try {
+                if (fileType === 'json') {
+                    const parsedData = JSON.parse(data);
+                    if (type === 'dashboard') {
+                        processJSONDashboardData(parsedData);
+                    } else if (type === 'trend') {
+                        processJSONTrendData(parsedData);
+                    }
+                } else if (fileType === 'xlsx' || fileType === 'xls') {
+                    processExcelFile(data, type);
+                } else {
+                    alert('Unsupported file type.');
+                }
+            } catch (error) {
+                console.error('File parsing error:', error);
+                alert(`Error processing file: ${error.message}`);
+            }
+        };
+
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+            reader.readAsArrayBuffer(file);
+        } else {
+            reader.readAsText(file);
+        }
+        
+        event.target.value = '';
+    }
+
+    function processExcelFile(data, type) {
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        if (type === 'dashboard') {
+            const headers = jsonSheetData[0];
+            const values = jsonSheetData[1];
+            if (headers && values) {
+                const dashboardData = {};
+                headers.forEach((header, index) => {
+                    dashboardData[header] = values[index];
+                });
+                // When coming from Excel, we expect the single month data object
+                processJSONDashboardData(dashboardData); 
+            } else {
+                 alert('Excel format error: Expected headers and data rows.');
+            }
+        } else if (type === 'trend') {
+            const headers = jsonSheetData[0];
+            const customerNameIndex = headers.findIndex(h => h && h.includes('Customer'));
+            const outputIndex = headers.findIndex(h => h && h.includes('Output'));
+            const percentIndex = headers.findIndex(h => h && h.includes('%'));
+            
+            if (customerNameIndex === -1 || outputIndex === -1 || percentIndex === -1) {
+                alert('Excel format error: Could not find required columns (Customer Name, Output, %).');
+                return;
+            }
+            
+            const trendArray = [];
+            for (let i = 1; i < jsonSheetData.length; i++) {
+                const row = jsonSheetData[i];
+                if (row[customerNameIndex] && row[outputIndex] !== undefined) {
+                    trendArray.push({
+                        customer: String(row[customerNameIndex]).trim(),
+                        output: Number(row[outputIndex]) || 0,
+                        percent: Number(row[percentIndex]) || 0
+                    });
+                }
+            }
+            processJSONTrendData(trendArray);
+        }
+    }
+
+    // 🏆 FIX FOR DASHBOARD DATABASE UPLOAD
+    async function processJSONDashboardData(data) {
+        let dashboardObject = data;
+        
+        // Check if the uploaded data is the full monthly database structure
+        if (data[currentMonthKey] && typeof data[currentMonthKey] === 'object' && data[currentMonthKey] !== null) {
+            dashboardObject = data[currentMonthKey];
+        } 
+        
+        // Safety check: ensure we have an object to process
+        if (typeof dashboardObject !== 'object' || dashboardObject === null) {
+            alert(`Dashboard JSON file format error: Could not find valid data for the selected month (${currentMonthKey}).`);
+            return;
+        }
+
+        // Now map the fields from the extracted or single-month object
+        const updatedData = {
+            'Auto Crimp': Number(dashboardObject['Auto Crimp']) || 0,
+            'Semi Crimp': Number(dashboardObject['Semi Crimp']) || 0,
+            'Soldering': Number(dashboardObject['Soldering']) || 0,
+            'Shift A': Number(dashboardObject['Shift A']) || 0,
+            'Shift B': Number(dashboardObject['Shift B']) || 0,
+            'Shift C': Number(dashboardObject['Shift C']) || 0,
+            'MSF P2': Number(dashboardObject['MSF P2']) || 0,
+            'MSF P7': Number(dashboardObject['MSF P7']) || 0,
+            'MSF MTotal P2': Number(dashboardObject['MSF MTotal P2']) || 0,
+            'MSF MTotal P7': Number(dashboardObject['MSF MTotal P7']) || 0,
+            'Assembly MTotal P2': Number(dashboardObject['Assembly MTotal P2']) || 0,
+            'Assembly MTotal P7': Number(dashboardObject['Assembly MTotal P7']) || 0,
+            'Assembly P2': Number(dashboardObject['Assembly P2']) || 0,
+            'Assembly P7': Number(dashboardObject['Assembly P7']) || 0,
+            'Productivity': Number(dashboardObject['Productivity']) || 0,
+            'LV Value': Number(dashboardObject['LV Value']) || 0,
+        };
+        await updateDashboardData(updatedData);
+        closeModal('update-choice-modal');
+    }
+
+    // 🚀 Robust Logic for Trend JSON Format
+    async function processJSONTrendData(data) {
+        let trendArray = null;
+
+        if (Array.isArray(data)) {
+            // Case 1: Simple Array
+            trendArray = data;
+        } else if (typeof data === 'object' && data !== null) {
+            // Case 2: User uploaded the entire db_trend.json structure
+            if (data[currentMonthKey] && Array.isArray(data[currentMonthKey])) {
+                trendArray = data[currentMonthKey];
+            } 
+            
+            // Case 3: Generic Wrapper/Top-Level Array Search 
+            if (!trendArray) {
+                 for (const key in data) {
+                     const potentialArray = data[key];
+                     if (Array.isArray(potentialArray) && potentialArray.length > 0) {
+                         // Simple validation: does the first item look like a customer object?
+                         const firstItem = potentialArray[0];
+                         if (firstItem && typeof firstItem === 'object' && firstItem.customer !== undefined) {
+                             trendArray = potentialArray;
+                             break;
+                         }
+                     }
+                 }
+            }
+        }
+
+        if (trendArray && Array.isArray(trendArray)) {
+            const processedArray = trendArray.map(item => ({
+                // Ensure customer name is a string and trim whitespace
+                customer: String(item.customer).trim(),
+                output: Number(item.output) || 0,
+                percent: Number(item.percent) || 0,
+            })).filter(item => item.customer !== ''); 
+
+            await updateTrendData(processedArray);
+            closeModal('trend-update-choice-modal');
+        } else {
+            alert(`JSON Trend file is incorrectly formatted. The tool could not find a suitable array of customer objects. Please ensure the top level of your JSON file is either the array itself, or an object containing the array under key "${currentMonthKey}", "customers", or another array-holding key.`);
+        }
+    }
+
+    // --- MISC HANDLERS (UNCHANGED) ---
+    function loadTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'default';
+        setTheme(savedTheme);
+    }
+
+    function setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        document.getElementById('theme-selector').value = theme;
+        localStorage.setItem(THEME_KEY, theme);
+        updateScheduleAverageMeter();
+        // Force update productivity meter color
+        const productivityValue = document.getElementById('productivity-value').textContent.replace('%', '');
+        document.querySelector('.productivity-chart').style.background = `conic-gradient(var(--accent-color-1) ${productivityValue}%, transparent 0)`;
+    }
+
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+        setTimeout(() => {
+            document.querySelector(`#${modalId} .modal-content`).classList.add('modal-active');
+        }, 10);
+    }
+
+    function closeModal(modalId) {
+        const modalContent = document.querySelector(`#${modalId} .modal-content`);
+        modalContent.classList.remove('modal-active');
+        setTimeout(() => {
+            document.getElementById(modalId).style.display = 'none';
+        }, 300);
+    }
+    
+    function showPasswordModal(action, user = 'admin') {
+        currentAction = action;
+        currentUser = user;
+        const actionDisplay = document.getElementById('auth-action-display');
+        actionDisplay.textContent = action.replace('_', ' ').toUpperCase();
+        showLoginForm();
+        openModal('password-modal');
+    }
+
+    function handlePasswordSubmit() {
+        const passwordInput = document.getElementById('password-input');
+        if (passwordInput.value === PASSWORD) {
+            closeModal('password-modal');
+            passwordInput.value = '';
+            
+            if (currentAction === 'update_dashboard') {
+                openModal('update-choice-modal');
+            } else if (currentAction === 'update_trend') {
+                openModal('trend-update-choice-modal');
+            } else if (currentAction === 'user') {
+                alert(`Welcome, ${currentUser}! (Login successful)`);
+            }
+        } else {
+            alert('Incorrect password!');
+            passwordInput.value = '';
+        }
+    }
+    
+    function showChangePasswordForm() {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('change-password-form').style.display = 'block';
+    }
+
+    function showLoginForm() {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('change-password-form').style.display = 'none';
+    }
+
+    function handleChangePassword() {
+        const currentPass = document.getElementById('current-password-input').value;
+        const newPass = document.getElementById('new-password-input').value;
+        const confirmPass = document.getElementById('confirm-password-input').value;
+
+        if (currentPass !== PASSWORD) {
+            alert('Current password is incorrect.');
+            return;
+        }
+        if (newPass.length < 3) {
+            alert('New password must be at least 3 characters.');
+            return;
+        }
+        if (newPass !== confirmPass) {
+            alert('New passwords do not match.');
+            return;
+        }
+        
+        alert('Password changed successfully in MOCKUP. This needs backend implementation.');
+        
+        document.getElementById('current-password-input').value = '';
+        document.getElementById('new-password-input').value = '';
+        document.getElementById('confirm-password-input').value = '';
+        showLoginForm();
+    }
+    
+    const SHARED_FOLDER_PATH = '\\\\192.168.4.6\\CCS Lab\\raghu';
     function openShortcutLink(path) {
-        // Attempt to copy path to clipboard (Windows File Explorer uses the UNC path)
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(path).then(() => {
                 alert(`File path copied to clipboard:\n${path}\n\n**Paste this path into your Windows File Explorer.**`);
@@ -687,6 +737,69 @@ document.addEventListener('DOMContentLoaded', () => {
     function openOutlook() {
         alert("The Outlook mail link cannot be opened directly from the browser due to security. This is a placeholder for a feature that would require a local desktop application.");
     }
+    
+    // --- EVENT LISTENERS (UNCHANGED) ---
+    function attachEventListeners() {
+        document.getElementById('open-update-btn').addEventListener('click', () => {
+            showPasswordModal('update_dashboard'); 
+        });
 
+        document.getElementById('open-trend-update-btn').addEventListener('click', () => {
+            showPasswordModal('update_trend'); 
+        });
+        
+        document.getElementById('month-selector').addEventListener('change', handleMonthChange);
+
+        document.getElementById('manual-update-btn').addEventListener('click', () => {
+            closeModal('update-choice-modal');
+            openModal('data-entry-modal');
+        });
+        document.getElementById('auto-update-btn').addEventListener('click', () => {
+            closeModal('update-choice-modal');
+            document.getElementById('excelFileInput').click();
+        });
+        
+        document.getElementById('manual-trend-update-btn').addEventListener('click', () => {
+            closeModal('trend-update-choice-modal');
+            openModal('trend-entry-modal');
+        });
+        document.getElementById('auto-trend-update-btn').addEventListener('click', () => {
+            closeModal('trend-update-choice-modal');
+            document.getElementById('trendFileInput').click(); 
+        });
+        
+        document.getElementById('theme-selector').addEventListener('change', (e) => setTheme(e.target.value));
+
+        document.querySelectorAll('[data-modal]').forEach(btn => {
+            btn.addEventListener('click', (e) => openModal(e.target.dataset.modal));
+        });
+        document.querySelectorAll('.modal-close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => closeModal(e.target.dataset.modalId));
+        });
+        document.querySelectorAll('.shortcut-item').forEach(item => {
+            item.addEventListener('click', (e) => openShortcutLink(e.target.dataset.link));
+        });
+        document.querySelectorAll('.user-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => showPasswordModal('user', e.target.dataset.user));
+        });
+        
+        // Listener for the new input field (for fetching existing customer data)
+        document.getElementById('edit-customer-input').addEventListener('input', populateTrendFields);
+        
+        document.getElementById('updateDashboardBtn').addEventListener('click', handleManualDataUpdate);
+        document.getElementById('updateTrendBtn').addEventListener('click', handleTrendUpdate);
+        document.getElementById('removeTrendBtn').addEventListener('click', handleTrendRemoval);
+        document.getElementById('addNoteBtn').addEventListener('click', handleNoteAddition);
+        document.getElementById('openMail').addEventListener('click', openOutlook);
+        document.getElementById('submitBtn').addEventListener('click', handlePasswordSubmit);
+        document.getElementById('changePasswordBtn').addEventListener('click', handleChangePassword);
+        document.querySelector('.change-password-link').addEventListener('click', showChangePasswordForm);
+        document.getElementById('cancelChangeBtn').addEventListener('click', showLoginForm);
+        
+        document.getElementById('excelFileInput').addEventListener('change', handleAutoUpdate);
+        document.getElementById('trendFileInput').addEventListener('change', handleTrendAutoUpdate);
+    }
+    
+    // --- EXECUTE INITIALIZATION ---
     initialize();
 });

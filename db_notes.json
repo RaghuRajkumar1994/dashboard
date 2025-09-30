@@ -1,0 +1,14 @@
+{
+  "2024-10": [
+    {
+      "id": "note1",
+      "text": "Remember to check Plant 7 data tomorrow.",
+      "timestamp": "2024-10-01T10:00:00Z"
+    },
+    {
+      "id": "note2",
+      "text": "Call vendor for machine A maintenance.",
+      "timestamp": "2024-10-01T10:30:00Z"
+    }
+  ]
+}

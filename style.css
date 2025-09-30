@@ -198,7 +198,6 @@
     --modal-input-text: #e0e0e0;
 }
 
-
 /* Apply variables to elements */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -219,7 +218,7 @@ body {
     border-radius: 10px;
     padding: 20px;
     display: grid;
-    grid-template-areas:
+    grid-template-areas: 
         "header header"
         "main sidebar";
     grid-template-columns: 3fr 1fr;
@@ -240,14 +239,20 @@ body {
     margin-bottom: 10px;
 }
 
-.header-logo { 
+.header-logo {
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-.header-title { color: var(--header-title-color); }
-.header-controls { display: flex; gap: 10px; }
+.header-title {
+    color: var(--header-title-color);
+}
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+}
 
 /* Theme Selector and Date Input Styles */
 .theme-selector, #month-selector { /* Added #month-selector here */
@@ -260,105 +265,67 @@ body {
     cursor: pointer;
 }
 
-
 /* Button Styles */
 .control-btn {
     background-color: var(--button-bg-color);
     color: #fff;
     border: none;
     padding: 10px 20px;
-    text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
     border-radius: 5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transform: translateX(0);
-    opacity: 1;
-    /* --- ANIMATION APPLIED HERE --- */
-    animation: slideInLeftBounce 1s ease-out;
-    animation-fill-mode: forwards;
-    /* --- END ANIMATION --- */
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .control-btn:hover {
-    background-color: color-mix(in srgb, var(--button-bg-color), white 20%);
-    transform: translateY(-2px);
+    background-color: color-mix(in srgb, var(--button-bg-color) 80%, white);
 }
 
-.modal-footer button {
-    background-color: var(--button-bg-color);
-    color: var(--text-color);
-    /* --- ANIMATION APPLIED HERE (Modal buttons) --- */
-    animation: slideInLeftBounce 1s ease-out;
-    animation-fill-mode: forwards;
-    /* --- END ANIMATION --- */
-}
-.modal-footer button:hover {
-    background-color: color-mix(in srgb, var(--button-bg-color), white 20%);
+.control-btn:active {
+    transform: scale(0.98);
 }
 
-/* Main and Sidebar Layout */
+.update-trend-btn {
+    padding: 5px 10px;
+    font-size: 0.8em;
+    margin-left: 15px;
+}
+
+/* Main Content Layout */
 .dashboard-main {
     grid-area: main;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .sidebar {
     grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* Panel Styles */
 .panel {
     background-color: var(--panel-bg-color);
-    border-left: 5px solid var(--panel-border-color);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    margin-bottom: 20px;
+    border: 1px solid var(--panel-border-color);
     border-radius: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.5s;
-}
-
-.panel:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.5s ease, border-color 0.5s ease;
 }
 
 .panel-header {
-    font-size: 1.2em;
-    font-weight: bold;
     color: var(--panel-header-color);
-    border-bottom: 2px solid var(--button-bg-color);
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-/* Panel Header Button Change: UPDATE TREND (Rectangle Button) */
-.panel-header .update-trend-btn {
-    background-color: var(--button-bg-color);
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    text-transform: uppercase;
+    font-size: 1.1em;
     font-weight: bold;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    margin-left: 10px;
-    font-size: 0.8em;
-    /* --- ANIMATION APPLIED HERE --- */
-    animation: slideInLeftBounce 1s ease-out;
-    animation-fill-mode: forwards;
-    /* --- END ANIMATION --- */
-}
-
-.panel-header .update-trend-btn:hover {
-    background-color: color-mix(in srgb, var(--button-bg-color), white 20%);
-    transform: translateY(-1px);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--modal-border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Top Row Panels */
@@ -368,312 +335,366 @@ body {
     gap: 20px;
 }
 
-.output-list .output-item {
+/* Machine Output Panel */
+.output-list {
     display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--secondary-bg);
-    font-size: 1.1em;
-    font-weight: 500;
+    flex-direction: column;
+    gap: 10px;
 }
 
+.output-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1em;
+}
+
+.output-item span:first-child {
+    font-weight: 300;
+}
+
+.output-item span:last-child {
+    font-weight: bold;
+}
+
+#auto-crimp-output { color: var(--accent-color-1); }
+#semi-crimp-output { color: var(--accent-color-2); }
+#soldering-output { color: var(--accent-color-3); }
+
+/* Cut's Hour QTY Panel */
 .cut-qty-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: space-between;
     gap: 15px;
+    align-items: center;
 }
 
 .shifts-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    flex-grow: 1;
 }
 
 .shift-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: var(--secondary-bg);
-    padding: 10px 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.shift-item:hover {
-    background-color: color-mix(in srgb, var(--secondary-bg), white 10%);
+    font-size: 1.05em;
 }
 
 .average-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
     background-color: var(--secondary-bg);
+    padding: 10px 20px;
     border-radius: 5px;
-    padding: 10px;
-    border: 2px solid var(--panel-border-color);
+    min-width: 100px;
 }
 
 .average-label {
-    font-weight: bold;
-    color: var(--text-color);
+    display: block;
+    font-size: 0.9em;
+    color: var(--header-title-color);
 }
 
 .average-value {
-    font-size: 2em;
+    display: block;
+    font-size: 1.8em;
     font-weight: bold;
+    color: var(--accent-color-2);
 }
 
+#shift-a-value, #shift-b-value, #shift-c-value { color: var(--accent-color-1); }
+#cuts-average-value { color: var(--accent-color-2); }
+
+
+/* Breakdown Time Panel */
 .breakdown-grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    justify-content: space-between;
     gap: 20px;
 }
 
 .breakdown-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-grow: 1;
 }
 
 .col-label {
     font-weight: bold;
-    color: var(--text-color);
-    text-align: center;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--modal-border-color);
+    color: var(--accent-color-2);
     margin-bottom: 5px;
+    border-bottom: 1px dashed var(--modal-border-color);
+    padding-bottom: 3px;
+    text-align: center;
 }
 
 .breakdown-data-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: var(--secondary-bg);
-    padding: 8px 10px;
-    border-radius: 5px;
+    padding: 4px 0;
+    font-size: 0.95em;
 }
 
-/* Production Trend Table Styles */
+.data-value {
+    font-weight: bold;
+    color: var(--accent-color-3);
+}
+
+/* Production Trend Panel (Table) */
+.production-trend-panel {
+    grid-column: 1 / span 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .table-container {
-    overflow-x: auto;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 400px; /* Adjust based on desired fit */
 }
 
 #production-trend-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9em;
-    text-align: left;
 }
 
 #production-trend-table thead th {
     background-color: var(--table-header-bg);
-    color: var(--panel-header-color);
-    padding: 12px 15px;
+    color: var(--header-title-color);
+    padding: 10px;
+    text-align: left;
     border-bottom: 2px solid var(--panel-border-color);
-    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 #production-trend-table tbody td {
-    padding: 10px 15px;
+    padding: 8px 10px;
     border-bottom: 1px solid var(--secondary-bg);
-    white-space: nowrap;
 }
 
-/* Sidebar Styles */
+#production-trend-table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--panel-bg-color) 90%, var(--secondary-bg));
+}
+
+.trend-header-cell {
+    width: 16.6%; /* Distribute 6 columns evenly */
+}
+
+/* Percentage Column Styles */
+td:nth-child(3), td:nth-child(6) {
+    font-weight: bold;
+    text-align: center;
+    width: 5%;
+}
+
+.percent-ge-100 {
+    color: var(--accent-color-1); /* Green for >= 100% */
+}
+
+.percent-lt-100 {
+    color: var(--warning-color); /* Yellow/Orange for < 100% */
+}
+
+.percent-0 {
+    color: var(--error-color); /* Red for 0% */
+}
+
+/* Sidebar Panels */
 .shortcut-panel {
-    min-height: 200px;
+    font-size: 0.9em;
 }
 
 .shortcut-item {
-    background-color: var(--shortcut-item-bg);
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    padding: 8px 0;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 0.9em;
-    border-left: 3px solid var(--accent-color-3);
+    color: var(--link-color);
+    border-bottom: 1px solid var(--secondary-bg);
+    transition: color 0.2s ease;
 }
 
 .shortcut-item:hover {
-    background-color: color-mix(in srgb, var(--shortcut-item-bg), white 15%);
+    color: var(--accent-color-1);
 }
 
-.productivity-panel, .schedule-panel {
-    text-align: center;
+.productivity-panel .panel-header, .schedule-panel .panel-header {
+    justify-content: center;
 }
 
+/* Chart Styles (Doughnut/Circle Meter) */
 .chart-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100px;
-    margin: 15px 0;
 }
 
 .chart-circle {
-    width: 80px;
-    height: 80px;
+    position: relative;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: inset 0 0 0 5px var(--secondary-bg);
-    position: relative;
-    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-.productivity-chart { background: conic-gradient(var(--accent-color-1) 75%, transparent 0); }
-.schedule-chart { background: conic-gradient(var(--accent-color-2) 56%, transparent 0); }
+.chart-circle::before {
+    content: '';
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: var(--panel-bg-color);
+    transition: background-color 0.5s ease;
+}
 
 .chart-value {
-    position: absolute;
+    position: relative;
+    font-size: 1.5em;
+    font-weight: bold;
     z-index: 2;
-    font-size: 1.2em;
 }
 
-.lv-production-panel .value-box {
+.productivity-chart .chart-value {
+    color: var(--accent-color-1);
+}
+
+.schedule-chart .chart-value {
+    color: var(--accent-color-2);
+}
+
+/* LV Production Panel */
+.lv-production-panel {
     text-align: center;
-    font-size: 2em;
+}
+
+.lv-production-panel .panel-header {
+    justify-content: center;
+}
+
+.value-box {
+    font-size: 2.2em;
     font-weight: bold;
     color: var(--accent-color-3);
-    padding: 20px 0;
+    padding: 10px 0;
 }
 
-.notifications-panel .icon-group {
+/* User Panel */
+.user-panel {
+    text-align: center;
+}
+
+.user-list {
     display: flex;
     justify-content: space-around;
     gap: 10px;
+    margin-top: 10px;
 }
 
-.icon-box {
-    flex: 1;
-    text-align: center;
-    background-color: var(--secondary-bg);
-    padding: 10px 5px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-.icon-box:hover {
-    background-color: color-mix(in srgb, var(--secondary-bg), white 15%);
-}
-
-/* --- Modal Styles --- */
+/* Modal Styles */
 .modal {
     display: none; 
-    position: fixed; 
-    z-index: 1000; 
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.6); 
-    justify-content: center; 
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); 
+    justify-content: center;
     align-items: center;
+    animation: fadeIn 0.3s forwards;
 }
 
 .modal-content {
     background-color: var(--modal-bg);
-    margin: auto;
     padding: 20px;
+    border-radius: 8px;
     border: 2px solid var(--modal-border-color);
     width: 90%;
-    max-width: 500px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    color: var(--text-color);
-    animation: fadeIn 0.3s;
+    max-width: 450px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.modal-content.modal-active {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-large {
+    max-width: 800px;
 }
 
 .modal-header {
+    color: var(--header-title-color);
     font-size: 1.4em;
     font-weight: bold;
-    color: var(--header-title-color);
-    border-bottom: 2px solid var(--modal-border-color);
+    border-bottom: 1px solid var(--modal-border-color);
     padding-bottom: 10px;
     margin-bottom: 15px;
     text-align: center;
-}
-
-.modal-sub-header {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: var(--panel-header-color);
-    margin: 15px 0 10px 0;
-    padding-left: 5px;
-    border-left: 3px solid var(--panel-header-color);
 }
 
 .modal-body {
     padding: 10px 0;
 }
 
-/* Update: Modal Input Styles for better visibility and reduced scrolling risk */
-.modal-body input[type="text"], 
-.modal-body input[type="number"],
-.modal-body input[type="password"],
-.modal-body select {
-    flex: 2;
-    padding: 8px 10px; /* Compact padding */
-    border: 1px solid var(--modal-border-color);
-    background-color: var(--secondary-bg); /* Use secondary background for better differentiation */
-    color: var(--text-color); /* Ensure high contrast by using main text color */
-    text-align: right;
-    border-radius: 5px;
-    box-sizing: border-box; /* Ensure padding doesn't increase element width/height unnecessarily */
+.form-group {
+    margin-bottom: 15px;
 }
 
-.modal-body select option {
-    background-color: var(--secondary-bg);
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
     color: var(--text-color);
 }
 
-.form-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+.modal-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--modal-border-color);
+    border-radius: 4px;
+    background-color: var(--modal-input-bg);
+    color: var(--modal-input-text);
+    font-family: inherit;
+    box-sizing: border-box;
+    font-size: 1em;
+    text-align: center;
 }
 
 .modal-footer {
+    padding-top: 15px;
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding-top: 15px;
+}
+
+.data-entry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.data-entry-grid .form-group.grid-full-row {
+    grid-column: 1 / -1;
+    margin-bottom: 5px;
+    padding-top: 10px;
     border-top: 1px solid var(--modal-border-color);
-    margin-top: 15px;
 }
 
-.modal-footer button {
-    cursor: pointer;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-    /* --- ANIMATION APPLIED HERE (Modal footer buttons) --- */
-    animation: slideInLeftBounce 1s ease-out;
-    animation-fill-mode: forwards;
-    /* --- END ANIMATION --- */
-}
-
-.modal-close-btn {
-    background-color: var(--button-bg-color);
-    color: var(--text-color);
-}
-
-.modal-close-btn:hover {
-    background-color: color-mix(in srgb, var(--button-bg-color), white 20%);
+.data-entry-grid h3 {
+    margin: 0;
+    color: var(--accent-color-2);
+    font-size: 1.1em;
 }
 
 .change-password-link {
-    text-align: center;
     font-size: 0.9em;
     color: var(--link-color);
     cursor: pointer;
@@ -717,20 +738,42 @@ body {
 #shift-a-value, #shift-b-value, #shift-c-value { color: var(--accent-color-1); }
 #cuts-average-value { color: var(--accent-color-2); }
 
-#msf-plant-2, #msf-plant-7 { color: var(--warning-color); }
-#assembly-plant-2, #assembly-plant-7 { color: var(--error-color); }
-#m-total-msf-p2, #m-total-msf-p7, #m-total-assembly-p2, #m-total-assembly-p7 { color: var(--warning-color); }
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        grid-template-areas: 
+            "header header"
+            "main main"
+            "sidebar sidebar";
+        grid-template-columns: 1fr;
+    }
+    
+    .top-row-panels {
+        grid-template-columns: 1fr;
+    }
 
-.percent-0 { color: var(--error-color); } 
-.percent-lt-100 { color: var(--warning-color); } 
-.percent-ge-100 { color: var(--accent-color-1); } 
-
-.user-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    .production-trend-panel {
+        grid-column: 1 / 1; 
+    }
 }
-.user-btn {
-    width: 100%;
-    text-align: center;
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .header-logo, .header-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .breakdown-grid-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .data-entry-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
