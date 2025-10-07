@@ -1,0 +1,28 @@
+{
+    "Auto Crimp": 3205000,
+    "Semi Crimp": 2101000,
+    "Soldering": 1500500,
+    
+    "Auto Crimp A": 2000,
+    "Auto Crimp B": 3500,
+    "Auto Crimp C": 1500,
+    "Semi Crimp A": 1000,
+    "Semi Crimp B": 500,
+    "Semi Crimp C": 800,
+    "Soldering A": 1200,
+    "Soldering B": 1800,
+    "Soldering C": 900,
+    
+    "MSF P2": 0.55,
+    "MSF P7": 0.82,
+    "Assembly P2": 0.20,
+    "Assembly P7": 0.15,
+    
+    "MSF MTotal P2": 15.20,
+    "MSF MTotal P7": 18.50,
+    "Assembly MTotal P2": 5.75,
+    "Assembly MTotal P7": 4.10,
+    
+    "Productivity": 92.5,
+    "LV Value": 8500000
+}

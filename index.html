@@ -36,7 +36,7 @@
         <main class="dashboard-main">
             <section class="top-row-panels">
                 <div class="panel machine-output">
-                    <div class="panel-header">MACHINE TOTAL OUTPUT</div>
+                    <div class="panel-header">MACHINE TOTAL OUTPUT <span id="current-month-year"></span></div>
                     <div class="output-list">
                         <div class="output-item auto-crimp"><span>AUTO CRIMP</span><span id="auto-crimp-output"></span></div>
                         <div class="output-item semi-crimp"><span>SEMI CRIMP</span><span id="semi-crimp-output"></span></div>
@@ -45,34 +45,56 @@
                 </div>
                 
                 <div class="panel cut-qty">
-                    <div class="panel-header">CUT'S HOUR QTY</div>
+                    <div class="panel-header">MACHINE WISE CUT'S HOUR QTY <span id="yesterday-date-cuts"></span></div>
                     <div class="cut-qty-grid">
-                        <div class="shifts-container">
-                            <div class="shift-item">
-                                <div class="shift-label">SHIFT-A</div><div class="shift-value" id="shift-a-value"></div>
-                            </div>
-                            <div class="shift-item">
-                                <div class="shift-label">SHIFT-B</div><div class="shift-value" id="shift-b-value"></div>
-                            </div>
-                            <div class="shift-item">
-                                <div class="shift-label">SHIFT-C</div><div class="shift-value" id="shift-c-value"></div>
-                            </div>
+                        <div class="shift-breakdown-container">
+                            <div class="breakdown-header">MACHINE NAME</div>
+                            <div class="breakdown-header">SHIFT A</div>
+                            <div class="breakdown-header">SHIFT B</div>
+                            <div class="breakdown-header">SHIFT C</div>
+                            
+                            <div class="breakdown-label">AUTO CRIMP</div>
+                            <div class="breakdown-value" id="auto-crimp-shift-a"></div>
+                            <div class="breakdown-value" id="auto-crimp-shift-b"></div>
+                            <div class="breakdown-value" id="auto-crimp-shift-c"></div>
+
+                            <div class="breakdown-label">SEMI CRIMP</div>
+                            <div class="breakdown-value" id="semi-crimp-shift-a"></div>
+                            <div class="breakdown-value" id="semi-crimp-shift-b"></div>
+                            <div class="breakdown-value" id="semi-crimp-shift-c"></div>
+
+                            <div class="breakdown-label">SOLDERING</div>
+                            <div class="breakdown-value" id="soldering-shift-a"></div>
+                            <div class="breakdown-value" id="soldering-shift-b"></div>
+                            <div class="breakdown-value" id="soldering-shift-c"></div>
                         </div>
-                        <div class="average-box">
-                            <span class="average-label">AVERAGE</span><span class="average-value" id="cuts-average-value"></span>
+                        
+                        <div class="cuts-averages-list">
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">AUTO CRIMP AVG</div>
+                                <div class="cuts-average-value" id="auto-crimp-average">0</div>
+                            </div>
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">SEMI CRIMP AVG</div>
+                                <div class="cuts-average-value" id="semi-crimp-average">0</div>
+                            </div>
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">SOLDERING AVG</div>
+                                <div class="cuts-average-value" id="soldering-average">0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="panel breakdown-time">
-                    <div class="panel-header">BREAKDOWN TIME</div>
+                    <div class="panel-header">BREAKDOWN TIME <span id="yesterday-date-breakdown"></span></div>
                     <div class="breakdown-grid-container">
                         <div class="breakdown-section msf-section">
                             <div class="col-label">MSF</div>
                             <div class="breakdown-data-item"><span>PLANT-2</span><span class="data-value" id="msf-plant-2"></span></div>
                             <div class="breakdown-data-item"><span>PLANT-7</span><span class="data-value" id="msf-plant-7"></span></div>
                             <div class="breakdown-data-item"><span>M-TOTAL P2</span><span class="data-value" id="m-total-msf-p2"></span></div>
-                            <div class="breakdown-data-item"><span>M-TOTAL P7</span><span class="data-value" id="m-total-msf-p7"></span></div>
+                            <div class="breakdown-data-item"><span>M-TOTAL P7</span><span class="data-value" id="m-total-msf-p7"></span></div> 
                         </div>
                         <div class="breakdown-section assembly-section">
                             <div class="col-label">ASSEMBLY</div>
@@ -112,11 +134,9 @@
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\Plant2Data.xlsx">PLANT 2</div>
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\Plant7Data.xlsx">PLANT 7</div>
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\CutsHourQty.xlsx">CUT'S HOUR QTY</div>
-                <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\DRM.xlsx">DRM</div>
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\ProductionAct.xlsx">PRODUCTION ACT</div>
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\SFTProductionReport.xlsx">SFT PRODUCTION REPORT</div>
                 <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\StockLiveData.xlsx">STOCK LIVE DATA</div>
-                <div class="shortcut-item" data-link="\\\\192.168.4.6\\CCS Lab\\raghu\\MSFPrintoutSheets.xlsx">MSF PRINTOUT SHEETS</div>
             </div>
             
             <div class="panel productivity-panel">
@@ -127,7 +147,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="panel schedule-panel">
                 <div class="panel-header">SCHEDULE AVERAGE</div>
                 <div class="chart-container">
@@ -136,26 +155,14 @@
                     </div>
                 </div>
             </div>
-
             <div class="panel lv-production-panel">
                 <div class="panel-header">LV-PRODUCTION VALUE</div>
                 <div class="value-box">₹ <span id="lv-production-value"></span></div>
             </div>
-            
-            <div class="panel mail-panel">
-                <button class="control-btn" id="openMail">OPEN MAIL</button>
-            </div>
-            
-            <div class="panel user-panel">
-                <div class="panel-header">USER LOGIN</div>
-                <div class="user-list">
-                    <button class="user-btn control-btn" data-user="ADMIN">ADMIN</button>
-                    <button class="user-btn control-btn" data-user="OPERATOR">OPERATOR</button>
-                </div>
+            <div class="panel notes-trigger-panel">
                 <div class="panel-header"><span data-modal="notes-modal" style="cursor: pointer;">NOTES <span id="note-count"></span></span></div>
             </div>
         </aside>
-
     </div>
 
     <div id="password-modal" class="modal">
@@ -164,173 +171,145 @@
             <div class="modal-body" id="login-form">
                 <div class="form-group">
                     <label for="password-input">Password:</label>
-                    <input type="password" id="password-input" class="modal-input" required>
+                    <input type="password" id="password-input" class="modal-input">
                 </div>
-                <div class="modal-footer" style="justify-content: space-between;">
-                    <span class="change-password-link">Change Password?</span>
+                <div class="modal-footer">
+                    <button class="modal-close-btn control-btn" data-modal-id="password-modal" style="background-color: var(--warning-color);">Cancel</button>
                     <button id="submitBtn" class="control-btn">Submit</button>
                 </div>
             </div>
             <div class="modal-body" id="change-password-form" style="display: none;">
                 <div class="form-group">
-                    <label for="current-password-input">Current Password:</label>
-                    <input type="password" id="current-password-input" class="modal-input" required>
+                    <label for="old-password-input">Old Password:</label>
+                    <input type="password" id="old-password-input" class="modal-input">
                 </div>
                 <div class="form-group">
                     <label for="new-password-input">New Password:</label>
-                    <input type="password" id="new-password-input" class="modal-input" required>
+                    <input type="password" id="new-password-input" class="modal-input">
                 </div>
-                <div class="form-group">
-                    <label for="confirm-password-input">Confirm New Password:</label>
-                    <input type="password" id="confirm-password-input" class="modal-input" required>
-                </div>
-                <div class="modal-footer" style="justify-content: flex-end; gap: 10px;">
+                <div class="modal-footer">
                     <button id="cancelChangeBtn" class="control-btn" style="background-color: var(--warning-color);">Cancel</button>
-                    <button id="changePasswordBtn" class="control-btn">Change</button>
+                    <button id="changePasswordBtn" class="control-btn">Change Password</button>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div id="notes-modal" class="modal" data-modal="notes-modal">
-        <div class="modal-content">
-            <div class="modal-header">NOTES <span id="notes-count-header"></span></div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <input type="text" id="note-input" placeholder="Enter a new note..." style="width: 100%; text-align: left;">
-                </div>
-                <div class="modal-footer" style="justify-content: center;">
-                    <button id="addNoteBtn" class="control-btn">Add Note</button>
-                </div>
-                <div id="notes-list" style="margin-top: 20px;"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-close-btn" data-modal-id="notes-modal">Close</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="update-choice-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">UPDATE DASHBOARD</div>
-            <div class="modal-body">
-                <div class="form-group user-list">
-                    <button class="control-btn" id="manual-update-btn">MANUAL UPDATE</button>
-                    <button class="control-btn" id="auto-update-btn">AUTOMATIC UPDATE (EXCEL/JSON)</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-close-btn" data-modal-id="update-choice-modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="trend-update-choice-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">UPDATE PRODUCTION TREND</div>
-            <div class="modal-body">
-                <div class="form-group user-list">
-                    <button class="control-btn" id="manual-trend-update-btn">MANUAL UPDATE</button>
-                    <button class="control-btn" id="auto-trend-update-btn">AUTOMATIC UPDATE (JSON)</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-close-btn" data-modal-id="trend-update-choice-modal">Cancel</button>
+            <div class="modal-footer-links">
+                <a href="#" class="change-password-link">Change Password</a>
             </div>
         </div>
     </div>
 
     <div id="data-entry-modal" class="modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">MANUAL DATA ENTRY - <span id="current-month-display"></span></div>
+        <div class="modal-content">
+            <div class="modal-header">DAILY DATA ENTRY: CUT'S HOUR QTY (MANUAL & AUTO)</div>
             <div class="modal-body">
-                <form id="daily-data-form" class="data-entry-grid">
-                    <div class="form-group">
-                        <label>Auto Crimp Output:</label>
-                        <input type="number" name="autoCrimpOutput" id="autoCrimpOutput" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Semi Crimp Output:</label>
-                        <input type="number" name="semiCrimpOutput" id="semiCrimpOutput" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Soldering Output:</label>
-                        <input type="number" name="solderingOutput" id="solderingOutput" class="modal-input" placeholder="0">
-                    </div>
-                    
-                    <div class="form-group grid-full-row"><h3>CUT'S HOUR QTY</h3></div>
+                <p class="data-update-mode-note">Upload an **Excel/JSON file** for **AUTO UPDATE** or use the form below for **MANUAL UPDATE**.</p>
+                
+                <div class="auto-update-controls">
+                    <label for="excelFileInput" class="control-btn upload-btn">UPLOAD DATA FILE (Auto Update)</label>
+                </div>
 
-                    <div class="form-group">
-                        <label>Shift A Value:</label>
-                        <input type="number" name="shiftAValue" id="shiftAValue" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Shift B Value:</label>
-                        <input type="number" name="shiftBValue" id="shiftBValue" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Shift C Value:</label>
-                        <input type="number" name="shiftCValue" id="shiftCValue" class="modal-input" placeholder="0">
-                    </div>
+                <form id="daily-data-form">
                     
-                    <div class="form-group grid-full-row"><h3>BREAKDOWN TIME</h3></div>
+                    <h3 class="form-section-header">CUT'S HOUR QTY (AUTO CRIMP, SEMI CRIMP, SOLDERING)</h3>
+                    <div class="shift-data-grid">
+                        <div class="grid-header">OPERATION</div>
+                        <div class="grid-header">SHIFT A</div>
+                        <div class="grid-header">SHIFT B</div>
+                        <div class="grid-header">SHIFT C</div>
+                        
+                        <div class="grid-label">AUTO CRIMP</div>
+                        <input type="number" name="autoCrimpShiftA" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="autoCrimpShiftB" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="autoCrimpShiftC" class="modal-input" placeholder="0" value="0">
 
-                    <div class="form-group">
-                        <label>MSF Plant 2 (Day):</label>
-                        <input type="number" step="0.01" name="msfP2" id="msfP2" class="modal-input" placeholder="0.00">
+                        <div class="grid-label">SEMI CRIMP</div>
+                        <input type="number" name="semiCrimpShiftA" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="semiCrimpShiftB" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="semiCrimpShiftC" class="modal-input" placeholder="0" value="0">
+
+                        <div class="grid-label">SOLDERING</div>
+                        <input type="number" name="solderingShiftA" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="solderingShiftB" class="modal-input" placeholder="0" value="0">
+                        <input type="number" name="solderingShiftC" class="modal-input" placeholder="0" value="0">
                     </div>
-                    <div class="form-group">
-                        <label>MSF Plant 7 (Day):</label>
-                        <input type="number" step="0.01" name="msfP7" id="msfP7" class="modal-input" placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>Assembly Plant 2 (Day):</label>
-                        <input type="number" name="assemblyP2" id="assemblyP2" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Assembly Plant 7 (Day):</label>
-                        <input type="number" name="assemblyP7" id="assemblyP7" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>MSF M-Total P2:</label>
-                        <input type="number" name="mTotalMsfP2" id="mTotalMsfP2" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>MSF M-Total P7:</label>
-                        <input type="number" name="mTotalMsfP7" id="mTotalMsfP7" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Assembly M-Total P2:</label>
-                        <input type="number" name="mTotalAssemblyP2" id="mTotalAssemblyP2" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Assembly M-Total P7:</label>
-                        <input type="number" name="mTotalAssemblyP7" id="mTotalAssemblyP7" class="modal-input" placeholder="0">
+
+                    <h3 class="form-section-header" style="margin-top: 25px;">MONTHLY TOTALS & BREAKDOWN TIME</h3>
+                    <div class="data-entry-grid">
+                        
+                        <div class="form-group">
+                            <label for="autoCrimpOutput">Auto Crimp (Monthly Total):</label>
+                            <input type="number" name="autoCrimpOutput" id="autoCrimpOutput" class="modal-input" placeholder="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="semiCrimpOutput">Semi Crimp (Monthly Total):</label>
+                            <input type="number" name="semiCrimpOutput" id="semiCrimpOutput" class="modal-input" placeholder="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="solderingOutput">Soldering (Monthly Total):</label>
+                            <input type="number" name="solderingOutput" id="solderingOutput" class="modal-input" placeholder="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="msfP2">MSF P2 (Breakdown Time):</label>
+                            <input type="number" step="0.01" name="msfP2" id="msfP2" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="msfP7">MSF P7 (Breakdown Time):</label>
+                            <input type="number" step="0.01" name="msfP7" id="msfP7" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="mTotalMsfP2">M-Total MSF P2:</label>
+                            <input type="number" step="0.01" name="mTotalMsfP2" id="mTotalMsfP2" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="mTotalMsfP7">M-Total MSF P7:</label>
+                            <input type="number" step="0.01" name="mTotalMsfP7" id="mTotalMsfP7" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="assemblyP2">Assembly P2 (Breakdown Time):</label>
+                            <input type="number" step="0.01" name="assemblyP2" id="assemblyP2" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="assemblyP7">Assembly P7 (Breakdown Time):</label>
+                            <input type="number" step="0.01" name="assemblyP7" id="assemblyP7" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="mTotalAssemblyP2">M-Total Assembly P2:</label>
+                            <input type="number" step="0.01" name="mTotalAssemblyP2" id="mTotalAssemblyP2" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="mTotalAssemblyP7">M-Total Assembly P7:</label>
+                            <input type="number" step="0.01" name="mTotalAssemblyP7" id="mTotalAssemblyP7" class="modal-input" placeholder="0.00" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productivityValue">Productivity (%):</label>
+                            <input type="number" name="productivityValue" id="productivityValue" class="modal-input" placeholder="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="lvProductionValue">LV-Production Value (₹):</label>
+                            <input type="number" name="lvProductionValue" id="lvProductionValue" class="modal-input" placeholder="0" value="0">
+                        </div>
+
                     </div>
                     
-                    <div class="form-group grid-full-row"><h3>OTHER METRICS</h3></div>
-                    
-                    <div class="form-group">
-                        <label>Productivity (%):</label>
-                        <input type="number" name="productivityValue" id="productivityValue" class="modal-input" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>LV Production Value (₹):</label>
-                        <input type="number" name="lvProductionValue" id="lvProductionValue" class="modal-input" placeholder="0">
-                    </div>
                 </form>
             </div>
-            <div class="modal-footer" style="justify-content: space-between;">
-                <button class="modal-close-btn" data-modal-id="data-entry-modal">Cancel</button>
-                <button id="updateDashboardBtn" class="control-btn">Update Dashboard</button>
+            <div class="modal-footer">
+                <button class="modal-close-btn control-btn" data-modal-id="data-entry-modal" style="background-color: var(--warning-color);">Cancel</button>
+                <button id="updateDashboardBtn" class="control-btn">Save Manual Update</button>
             </div>
         </div>
     </div>
 
     <div id="trend-entry-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">MANUAL TREND UPDATE</div>
+            <div class="modal-header">EDIT PRODUCTION TREND</div>
             <div class="modal-body">
+                <p class="data-update-mode-note">Upload a **JSON file** for **AUTO UPDATE** or use the form below for **MANUAL UPDATE**.</p>
+                 <div class="auto-update-controls">
+                    <label for="trendFileInput" class="control-btn upload-btn">UPLOAD TREND FILE (Auto Update)</label>
+                </div>
                 <div class="form-group">
                     <label for="edit-customer-input">Customer Name (Select Existing or Enter New):</label>
                     <input list="customer-list" id="edit-customer-input" class="modal-input" placeholder="Enter or select customer name">
@@ -351,6 +330,24 @@
                         <button id="updateTrendBtn" class="control-btn">Save Update</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">DAILY NOTES</div>
+            <div class="modal-body">
+                <div id="notes-list" class="notes-list-container">
+                    </div>
+                <div class="form-group">
+                    <label for="note-input">Add New Note:</label>
+                    <input type="text" id="note-input" class="modal-input" placeholder="Enter note text...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="addNoteBtn" class="control-btn">Add Note</button>
+                <button class="modal-close-btn control-btn" data-modal-id="notes-modal" style="background-color: var(--warning-color);">Close</button>
             </div>
         </div>
     </div>
