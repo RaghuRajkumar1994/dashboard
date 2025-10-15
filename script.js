@@ -65,13 +65,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+// --- UTILITY: REAL API CALL WRAPPER ---
+async function makeApiCall(endpoint, method = 'GET', data = null) {
+    const fullUrl = BASE_API_URL + endpoint;
+    const options = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    };
 
-    // --- UTILITY: MOCK API CALL WRAPPER (Using LocalStorage) ---
-    async function makeApiCall(endpoint, method = 'GET', data = null) {
-        
-        let dailyDataStore = JSON.parse(localStorage.getItem(DAILY_DATA_KEY) || '{}');
-        let trendDataStore = JSON.parse(localStorage.getItem(TREND_DATA_KEY) || '{}');
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+    
+    // IMPORTANT: Temporarily remove the 'no-cache' header if running on Render 
+    // and encountering CORS issues, but keep in mind that caching might occur. 
+    // In a real production environment, you would manage CORS correctly on the server.
+    // options.headers['Cache-Control'] = 'no-cache'; 
+    
+    try {
+        const response = await fetch(fullUrl, options);
 
+        if (response.ok) {
+            // For successful POST/PUT/DELETE, the server might return a 200/201 
+            // with no body (e.g., success message), so check content type before parsing.
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return await response.json();
+            } else {
+                return { status: 'success', message: `Operation successful: ${response.statusText}` };
+            }
+        } else {
+            // Attempt to read error message from JSON body
+            const errorBody = await response.json().catch(() => ({ message: response.statusText || 'Unknown error' }));
+            console.error(`API Error on ${fullUrl} (${method}):`, errorBody);
+            throw new Error(`API call failed: ${errorBody.message}`);
+        }
+    } catch (error) {
+        console.error("Fetch API Error:", error);
+        throw error;
+    }
+}
         // Initial Mock Data Population if storage is empty
         if (Object.keys(dailyDataStore).length === 0 || !dailyDataStore['trend_chart_data']) {
             dailyDataStore['2025-10-09'] = { // Yesterday's Mock Data
