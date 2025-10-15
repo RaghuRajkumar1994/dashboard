@@ -4,7 +4,7 @@ import uuid
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from datetime import datetime, timedelta
-import pandas as pd # Used for reading Excel files
+import pandas as pd # Essential for reading Excel files
 from werkzeug.utils import secure_filename # Used for safe file names
 
 # --- CONFIGURATION ---
@@ -13,11 +13,10 @@ DASHBOARD_FILE = os.path.join(DATA_DIR, 'db_dashboard.json')
 TREND_FILE = os.path.join(DATA_DIR, 'db_trend.json')
 NOTES_FILE = os.path.join(DATA_DIR, 'db_notes.json')
 UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
-ALLOWED_EXTENSIONS = {'json', 'xlsx', 'xls'} # Added xlsx/xls support
+ALLOWED_EXTENSIONS = {'json', 'xlsx', 'xls'} 
 
 # Ensure the data directory and upload directory exists
-# NOTE: In production (Render), these directories are usually created in the temporary
-# file system, which is okay for temporary data like uploads.
+# On Render, this creates directories in the writable filesystem.
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -138,14 +137,11 @@ def authenticate():
 # --- UPLOAD ROUTE ---
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    # Check if the post request has the file part
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     
     file = request.files['file']
     
-    # If the user does not select a file, the browser submits an
-    # empty file without a filename.
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     
@@ -153,18 +149,9 @@ def upload_file():
         try:
             filename = secure_filename(file.filename)
             
-            # Since this is a temporary analysis, we can process the file in memory or use the stream
-            # The client-side code expects the server to read the Excel/JSON file,
-            # analyze the data, and return a standardized JSON structure.
-            
-            # Check for JSON file
+            # JSON File Handling
             if file.filename.endswith('.json'):
-                # Read the JSON file content from the stream
                 data = json.load(file.stream)
-                
-                # Assume the JSON structure is already chart-ready: {"labels": [...], "data": [...], "title": "..."}
-                # If it's not chart-ready, you would add conversion logic here.
-                # For simplicity, we assume the root object contains the chart data directly.
                 if 'labels' in data and 'data' in data:
                      return jsonify({
                         "labels": data['labels'],
@@ -174,28 +161,22 @@ def upload_file():
                 else:
                     return jsonify({"error": "JSON file must contain 'labels' and 'data' fields."}), 400
 
-            # Check for Excel file
-            # Assumes the first sheet and needs two columns: 'Category' and 'Value'
+            # Excel File Handling
             if file.filename.endswith(('.xlsx', '.xls')):
-                # Use the file stream for reading directly
                 df = pd.read_excel(file.stream)
             else:
                  return jsonify({"error": "Unsupported file format. Please use .json, .xlsx, or .xls."}), 400
 
-            # --- Data Processing Logic ---
-            # Attempt to use the first two columns as chart labels and values.
+            # Data Processing Logic
             if len(df.columns) >= 2:
-                # Rename the first two columns for predictable access
                 df.columns = ['Category', 'Value'] + list(df.columns[2:])
             else:
                 return jsonify({"error": "Excel file must contain at least two columns for chart data (e.g., Category and Value).",
                                 "file_columns": df.columns.tolist()}), 400
             
-            # Convert to lists
             labels = df['Category'].astype(str).tolist()
             data_points = df['Value'].tolist()
             
-            # Return the processed data
             return jsonify({
                 "labels": labels,
                 "data": data_points,
@@ -203,15 +184,15 @@ def upload_file():
             }), 200
 
         except Exception as e:
-            # This is where the initial deployment often fails if pandas or openpyxl is missing
+            # If this is an ImportError (missing dependency), the worker will crash 
+            # and Gunicorn will give the code 3 error.
             print(f"Error processing uploaded file: {e}")
-            return jsonify({"error": f"An error occurred while processing the file: {str(e)}. Check your Excel file structure or server logs for missing libraries."}), 500
+            return jsonify({"error": f"An error occurred while processing the file: {str(e)}. Check Excel file or server logs."}), 500
     
     return jsonify({"error": "File type not allowed"}), 400
 
 
-# Run the application when executed directly (e.g., for local testing)
+# Fallback for local testing only
 if __name__ == '__main__':
-    # When deploying to Render, gunicorn is used, not app.run()
     print("Running Flask app in development mode...")
     app.run(debug=True, port=int(os.environ.get('PORT', 5000)))
