@@ -1,6 +1,5 @@
 Flask
 flask-cors
-gunicorn
 pandas
-openpyxl
-werkzeug
+pymongo
+dnspython # needed for srv connection string (MongoDB Atlas)
