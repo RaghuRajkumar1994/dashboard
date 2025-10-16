@@ -1,0 +1,958 @@
+/* Improved Base Styles & Root Variables */
+:root {
+    /* DEFAULT THEME (Dark Mode - Professional Blue/Cyan Accent) */
+    --bg-color: #0d1117; /* Very dark background (GitHub Dark) */
+    --container-bg-color: #161b22; /* Slightly lighter container/header */
+    --text-color: #e6edf3; /* High contrast, light text */
+    --header-title-color: #58a6ff; /* Primary Blue for Title */
+    --panel-border-color: #30363d; /* Subtle dark border */
+    --panel-bg-color: #161b22;
+    --panel-header-color: #58a6ff; /* Panel headers use the accent color */
+    --table-header-bg: #21262d;
+    --shortcut-item-bg: #21262d;
+    --accent-color-1: #58a6ff; /* Primary Accent (Vibrant Blue) - for positive/key values */
+    --accent-color-2: #80cfff; /* Secondary Accent (Lighter Blue) - for chart fills/value text */
+    --accent-color-3: #a872ff; /* Tertiary Accent (Purple) - for secondary data in charts/passwords */
+    --link-color: #80cfff;
+    --error-color: #f85149; /* Red for errors/alerts */
+    --warning-color: #e3b341; /* Yellow/Orange for warnings */
+    --success-color: #28a745; /* Green for success */
+    --button-bg-color: #58a6ff; /* Button background matches accent */
+    --secondary-bg: #21262d; /* Used for item backgrounds */
+    --modal-bg: #161b22;
+    --modal-border-color: #30363d;
+    --modal-input-bg: #0d1117;
+    --shadow-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Light Mode */
+[data-theme="light"] {
+    --bg-color: #f4f7f9;
+    --container-bg-color: #ffffff;
+    --text-color: #333;
+    --header-title-color: #007bff;
+    --panel-border-color: #ccc;
+    --panel-bg-color: #ffffff;
+    --panel-header-color: #007bff;
+    --table-header-bg: #e9ecef;
+    --shortcut-item-bg: #f8f9fa;
+    --accent-color-1: #28a745; 
+    --accent-color-2: #fd7e14;
+    --accent-color-3: #6c757d;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --success-color: #28a745;
+    --button-bg-color: #007bff;
+    --secondary-bg: #e9ecef;
+    --modal-bg: #ffffff;
+    --modal-input-bg: #f8f9fa;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode (Kept for compatibility with "dark" option) */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --container-bg-color: #1e1e1e;
+    --text-color: #e0e0e0;
+    --header-title-color: #bb86fc;
+    --panel-border-color: #444;
+    --panel-bg-color: #1e1e1e;
+    --panel-header-color: #bb86fc;
+    --table-header-bg: #2c2c2c;
+    --shortcut-item-bg: #2c2c2c;
+    --accent-color-1: #03dac6;
+    --accent-color-2: #cf6679;
+    --accent-color-3: #bb86fc;
+    --button-bg-color: #03dac6;
+    --secondary-bg: #2c2c2c;
+    --modal-bg: #1e1e1e;
+    --modal-input-bg: #121212;
+    --shadow-color: rgba(0, 0, 0, 0.7);
+}
+
+
+/* Green Theme */
+[data-theme="green"] {
+    --bg-color: #0f1c1f;
+    --container-bg-color: #172a2e;
+    --header-title-color: #3baf94;
+    --panel-border-color: #3baf94;
+    --panel-header-color: #3baf94;
+    --accent-color-1: #50fa7b;
+    --accent-color-2: #f2e394;
+    --accent-color-3: #6c757d;
+    --button-bg-color: #50fa7b;
+    --modal-input-bg: #1f363b;
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+    --bg-color: #0e1a2f;
+    --container-bg-color: #1b2f4a;
+    --header-title-color: #8be9fd;
+    --panel-border-color: #4a6fa5;
+    --panel-header-color: #8be9fd;
+    --accent-color-1: #69c3ff;
+    --accent-color-2: #ff99e6;
+    --accent-color-3: #a872ff;
+    --button-bg-color: #69c3ff;
+    --modal-input-bg: #253d5c;
+}
+
+/* Purple Theme */
+[data-theme="purple"] {
+    --bg-color: #1e122b;
+    --container-bg-color: #2b1a3d;
+    --header-title-color: #bd93f9;
+    --panel-border-color: #6a4c93;
+    --panel-header-color: #bd93f9;
+    --accent-color-1: #ffb86c;
+    --accent-color-2: #e94560;
+    --accent-color-3: #bd93f9;
+    --button-bg-color: #bd93f9;
+    --modal-input-bg: #3c2452;
+}
+
+/* Red Theme */
+[data-theme="red"] {
+    --bg-color: #2e1a1a;
+    --container-bg-color: #3e2121;
+    --header-title-color: #ff5555;
+    --panel-border-color: #ff5555;
+    --panel-header-color: #ff5555;
+    --accent-color-1: #ffb86c;
+    --accent-color-2: #50fa7b;
+    --accent-color-3: #f85149;
+    --button-bg-color: #ff5555;
+    --modal-input-bg: #4a2929;
+}
+
+/* Orange Theme */
+[data-theme="orange"] {
+    --bg-color: #2e211a;
+    --container-bg-color: #3e2e21;
+    --header-title-color: #ff9f40;
+    --panel-border-color: #ff9f40;
+    --panel-header-color: #ff9f40;
+    --accent-color-1: #50fa7b;
+    --accent-color-2: #8be9fd;
+    --accent-color-3: #e3b341;
+    --button-bg-color: #ff9f40;
+    --modal-input-bg: #4a3e29;
+}
+
+/* Cyan Theme */
+[data-theme="cyan"] {
+    --bg-color: #1a2e2e;
+    --container-bg-color: #213e3e;
+    --header-title-color: #8be9fd;
+    --panel-border-color: #8be9fd;
+    --panel-header-color: #8be9fd;
+    --accent-color-1: #ff79c6;
+    --accent-color-2: #ffb86c;
+    --accent-color-3: #03dac6;
+    --button-bg-color: #8be9fd;
+    --modal-input-bg: #2d5454;
+}
+
+/* ================================================= */
+/* GLOBAL STYLES */
+/* ================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more modern font stack */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
+}
+
+/* ------------------------------------------------- */
+/* MODIFIED: Full Screen & Panel Re-Arrangement */
+/* ------------------------------------------------- */
+.dashboard-container {
+    display: grid; 
+    /* New grid areas: header (top), main (middle) */
+    grid-template-areas: 
+        "header"
+        "main";
+    grid-template-columns: 1fr; 
+    /* Single column layout for main content */
+    gap: 20px;
+    padding: 20px;
+    width: 98%; /* Full screen width (98% for a slight margin) */
+    max-width: none; /* Remove max width constraint for full screen */
+    margin: 0 auto;
+}
+
+/* The dashboard-main now spans the entire width and contains all content below the header */
+.dashboard-main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Gap between sections */
+}
+
+/* ================================================= */
+/* HEADER & NAVIGATION */
+/* ================================================= */
+.dashboard-header {
+    grid-area: header;
+    background-color: var(--container-bg-color);
+    padding: 15px 25px;
+    border-radius: 12px; /* Smoother corners */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 15px var(--shadow-color); /* Stronger shadow */
+}
+
+.header-title {
+    color: var(--header-title-color);
+    font-size: 2.2em; /* Slightly larger */
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.header-logo, .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-date, .theme-selector, .control-btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border-color);
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.control-btn {
+    background-color: var(--button-bg-color);
+    color: var(--bg-color); /* Dark text on bright button */
+    font-weight: 600;
+    text-transform: uppercase;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:hover {
+    filter: brightness(1.1);
+}
+
+.header-yesterday-date {
+    font-size: 0.9em;
+    color: var(--accent-color-3);
+    font-weight: 500;
+}
+
+/* ================================================= */
+/* PANEL STYLES & LAYOUT */
+/* ================================================= */
+
+.panel {
+    background-color: var(--panel-bg-color);
+    border: 1px solid var(--panel-border-color);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--panel-header-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--panel-border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* MODIFIED: Top Row Layout for 4 main panels + charts */
+.top-row-panels {
+    display: grid;
+    /* 3-column layout: Output | Value/Charts | Cuts/Breakdown */
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: auto;
+    gap: 20px;
+}
+
+/* MODIFIED: Bottom Row Layout for 3 panels */
+.bottom-row-panels {
+    display: grid;
+    /* 3-column layout: Breakdown | Trend Customer | Shortcuts */
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 20px;
+}
+
+/* Panel Positioning in Top Row (now a 3-column layout) */
+.machine-output {
+    grid-column: 1 / 2;
+    min-height: 200px; /* Base height */
+}
+
+.moved-panels-group { 
+    grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.production-value-group {
+    display: flex;
+    gap: 20px;
+    flex: 0 0 auto;
+}
+
+.lv-value-panel {
+    flex: 1;
+    text-align: center;
+}
+
+.lv-value {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: var(--accent-color-1);
+}
+
+.charts-panel {
+    flex: 1 1 auto; 
+    padding: 10px;
+}
+
+.cut-qty {
+    grid-column: 3 / 4;
+}
+
+/* Machine Output List */
+.output-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.output-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg);
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.output-item span:last-child {
+    font-weight: 700;
+    color: var(--accent-color-2);
+}
+
+/* Productivity/Schedule Charts (Doughnut/Gauge) */
+.chart-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    min-height: 200px;
+}
+
+.chart-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 45%;
+}
+
+.chart {
+    position: relative;
+    width: 100%;
+    max-width: 150px;
+}
+
+.chart-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent-color-1);
+}
+
+.chart-label {
+    margin-top: 10px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Cuts QTY Grid (Shift Breakdown and Averages) */
+.cut-qty-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 15px;
+}
+
+.shift-breakdown-container {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.breakdown-header {
+    font-weight: 700;
+    text-align: center;
+    padding: 8px 5px;
+    background-color: var(--table-header-bg);
+    border-radius: 4px;
+}
+
+.breakdown-label {
+    font-weight: 600;
+    padding: 8px 5px;
+    background-color: var(--secondary-bg);
+    border-radius: 4px;
+}
+
+.breakdown-value {
+    padding: 8px 5px;
+    text-align: center;
+    background-color: var(--secondary-bg);
+    color: var(--accent-color-2);
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.cuts-averages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    padding-left: 10px;
+}
+
+.cuts-average-container {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg);
+}
+
+.cuts-average-label {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+
+.cuts-average-value {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--accent-color-1);
+}
+
+/* Breakdown Time Panel */
+.breakdown-time {
+    display: flex; /* Ensure it stays a flex container for the internal grid */
+}
+.breakdown-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex-grow: 1; /* Allow it to grow in the bottom-row-panels grid */
+}
+
+.breakdown-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.col-label {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--panel-header-color);
+    padding: 5px;
+    text-align: center;
+    background-color: var(--table-header-bg);
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.breakdown-data-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg);
+    font-size: 1em;
+}
+
+.breakdown-data-item .data-value {
+    font-weight: 700;
+    color: var(--error-color); /* Highlight breakdown time with error color */
+}
+
+/* Customer Trend Panel */
+.trend-customer-panel .panel-header {
+    justify-content: center; 
+    text-align: center;
+    flex-direction: column;
+    line-height: 1.2;
+}
+.trend-customer-panel .panel-header span {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.customer-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 250px; /* Constrain height for a consistent layout */
+}
+
+.customer-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--secondary-bg);
+    font-size: 1em;
+}
+
+.customer-item span:first-child {
+    font-weight: 600;
+}
+
+.customer-output {
+    text-align: right;
+    font-weight: 500;
+    color: var(--accent-color-2);
+}
+
+.customer-percentage {
+    text-align: right;
+    font-weight: 700;
+    color: var(--accent-color-1);
+}
+
+/* ------------------------------------------------- */
+/* NEW: CHART SHORTCUTS PANEL */
+/* ------------------------------------------------- */
+.shortcut-panel {
+    /* Style for the panel container */
+}
+
+.shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.shortcut-item {
+    background-color: var(--shortcut-item-bg);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    border: 1px solid var(--panel-border-color);
+}
+
+.shortcut-item:hover {
+    background-color: var(--panel-header-color);
+    color: var(--bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+
+/* ================================================= */
+/* MODAL STYLES (Update forms) */
+/* ================================================= */
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8); /* Darker backdrop */
+    animation: fadeIn 0.3s;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    margin: 5% auto; /* 5% from top and centered */
+    padding: 20px;
+    border: 1px solid var(--modal-border-color);
+    border-radius: 12px;
+    width: 80%; /* Default width */
+    max-width: 900px;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    animation: slideDown 0.3s;
+}
+
+.update-modal-content {
+    max-width: 700px;
+}
+
+.small-modal {
+    max-width: 400px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--panel-border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    color: var(--panel-header-color);
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.close-modal-btn {
+    background-color: var(--error-color);
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 800;
+}
+
+.modal-body {
+    max-height: 70vh; /* Max height for scrolling on small screens */
+    overflow-y: auto;
+    padding-right: 5px; /* Space for scrollbar */
+}
+
+.modal-controls-panel {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--panel-border-color);
+}
+
+.upload-status {
+    font-size: 0.9em;
+    color: var(--warning-color);
+}
+
+.update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--accent-color-1);
+    margin-top: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--panel-border-color);
+}
+
+.modal-field-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 2fr; /* Label, Input, Label, Input */
+    gap: 15px;
+    align-items: center;
+}
+
+.modal-field-grid label {
+    font-weight: 500;
+    text-align: right;
+}
+
+.modal-input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-border-color);
+    background-color: var(--modal-input-bg);
+    color: var(--text-color);
+    font-size: 1em;
+    width: 100%;
+}
+
+.shift-breakdown-entry-grid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 10px;
+    align-items: center;
+}
+
+.breakdown-entry-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.breakdown-entry-grid .col-label {
+    margin-bottom: 0;
+}
+
+.breakdown-entry-grid .modal-field {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.breakdown-entry-grid .modal-field label {
+    font-weight: 500;
+}
+
+.trend-item-entry {
+    display: grid;
+    grid-template-columns: 3fr 2fr 2fr auto; /* Name, Output, Percentage, Remove Button */
+    gap: 10px;
+    align-items: center;
+    background-color: var(--secondary-bg);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.trend-item-entry .modal-input:first-child {
+    font-weight: 600;
+}
+
+.remove-trend-btn {
+    background-color: var(--error-color);
+    color: var(--text-color);
+    padding: 5px 10px;
+    font-size: 0.8em;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 20px;
+    border-top: 1px solid var(--panel-border-color);
+}
+
+.modal-actions.full-width {
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.full-width-label {
+    grid-column: span 4;
+    text-align: left !important;
+    margin-top: 10px;
+}
+
+.password-form .modal-input {
+    grid-column: span 4;
+}
+
+/* CHART MODAL STYLES (Fixed structure to support the large chart) */
+.chart-modal-content {
+    max-width: 95%;
+    margin: 2% auto;
+    height: 90vh; /* Take up more screen space */
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-modal-header {
+    border-bottom: none;
+    padding-bottom: 5px;
+}
+
+.chart-modal-header #chart-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--panel-header-color);
+}
+
+.chart-controls-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chart-canvas-container {
+    flex-grow: 1;
+    min-height: 0; /* Important for flex-grow with canvas */
+    padding: 10px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+}
+
+.chart-modal-body {
+    flex-grow: 1;
+    min-height: 0;
+    padding: 0;
+    overflow-y: hidden; /* Prevent scrollbar in the chart area */
+}
+
+/* ================================================= */
+/* ANIMATIONS */
+/* ================================================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* ================================================= */
+/* MEDIA QUERIES (Responsive Design) */
+/* ================================================= */
+@media (max-width: 1200px) {
+    .top-row-panels, .bottom-row-panels {
+        grid-template-columns: 1fr 1fr; /* 2 columns on medium screens */
+    }
+
+    .machine-output, .moved-panels-group, .cut-qty {
+        grid-column: span 1 !important;
+        grid-row: auto !important;
+    }
+    
+    .charts-panel {
+        min-height: 250px;
+    }
+    
+    .cut-qty-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .breakdown-grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .shortcut-panel {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .header-logo, .header-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .header-title {
+        font-size: 1.8em;
+    }
+    
+    .top-row-panels, .bottom-row-panels {
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+    
+    .moved-panels-group {
+        grid-column: 1 / 2;
+    }
+    
+    .production-value-group {
+        flex-direction: column;
+    }
+    
+    .cut-qty-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .shift-breakdown-container {
+        grid-template-columns: 1.5fr repeat(3, 1fr); /* Keep breakdown layout tight */
+    }
+
+    .shortcut-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    .modal-field-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .modal-field-grid label {
+        grid-column: span 1;
+        text-align: left;
+    }
+    
+    .modal-field-grid .modal-input {
+        grid-column: span 1;
+    }
+    
+    .shift-breakdown-entry-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .shift-breakdown-entry-grid .breakdown-header {
+        grid-column: span 1;
+    }
+    
+    .shift-breakdown-entry-grid .breakdown-label {
+        grid-column: span 2;
+        text-align: center;
+    }
+    
+    .breakdown-entry-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .breakdown-entry-grid .col-label {
+        grid-column: span 1;
+    }
+    
+    .breakdown-entry-grid .modal-field {
+        grid-column: span 1;
+    }
+}

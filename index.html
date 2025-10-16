@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Team Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container" data-theme="default">
+        
+        <header class="dashboard-header">
+            <div class="header-logo">
+                <select id="theme-selector" class="theme-selector">
+                    <option value="default">Default Theme</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                    <option value="green">Green Theme</option>
+                    <option value="blue">Blue Theme</option>
+                    <option value="purple">Purple Theme</option>
+                    <option value="red">Red Theme</option>
+                    <option value="orange">Orange Theme</option>
+                    <option value="cyan">Cyan Theme</option>
+                </select>
+                <input type="date" id="date-selector" class="header-date"> 
+                <span id="yesterday-date-display-header" class="header-yesterday-date"></span>
+            </div>
+            <h1 class="header-title">PRODUCTION DASHBOARD</h1>
+            <div class="header-controls">
+                <button class="control-btn password-protected-btn" data-action="daily-update">DAILY UPDATE</button>
+                <button class="control-btn password-protected-btn" data-action="trend-update">TREND UPDATE</button>
+                <button class="control-btn password-protected-btn" data-action="chart-trend-update" style="background-color: var(--accent-color-3);">UPDATE CHART</button>
+                
+                <input type="file" id="dailyFileInput" accept=".xlsx, .xls, .json" style="display: none;">
+                <input type="file" id="trendFileInput" accept=".xlsx, .xls, .json" style="display: none;">
+                <input type="file" id="chartTrendFileInput" accept=".xlsx, .xls, .json" style="display: none;">
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <section class="top-row-panels">
+                
+                <div class="panel machine-output">
+                    <div class="panel-header">MACHINE TOTAL OUTPUT <span id="current-month-year-display"></span></div> 
+                    <div class="output-list">
+                        <div class="output-item auto-crimp"><span>AUTO CRIMP</span><span id="auto-crimp-output">0</span></div>
+                        <div class="output-item semi-crimp"><span>SEMI CRIMP</span><span id="semi-crimp-output">0</span></div> 
+                        <div class="output-item soldering"><span>SOLDERING</span><span id="soldering-output">0</span></div> 
+                    </div>
+                </div>
+                
+                <div class="moved-panels-group"> 
+                    <div class="production-value-group">
+                        <div class="panel lv-value-panel production-today">
+                            <div class="panel-header">PRODUCTION VALUE (Today)</div>
+                            <div class="lv-value" id="production-value-today">0</div>
+                        </div>
+                        
+                        <div class="panel lv-value-panel production-yesterday">
+                            <div class="panel-header">PRODUCTION VALUE (Yesterday)</div>
+                            <div class="lv-value" id="production-value-yesterday">0</div>
+                        </div>
+                    </div>
+
+                    <div class="panel charts-panel">
+                        <div class="chart-container">
+                            <div class="chart-item">
+                                <div class="chart productivity-chart">
+                                    <canvas id="productivityChart"></canvas>
+                                    <span class="chart-value" id="productivity-value">0%</span>
+                                </div>
+                                <div class="chart-label">PRODUCTIVITY</div>
+                            </div>
+                            <div class="chart-item">
+                                <div class="chart schedule-chart">
+                                    <canvas id="scheduleChart"></canvas>
+                                    <span class="chart-value" id="schedule-value">0%</span>
+                                </div>
+                                <div class="chart-label">SCHEDULE AVG</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel cut-qty">
+                    <div class="panel-header">MACHINE WISE CUT'S HOUR QTY <span id="yesterday-date-display-cuts"></span></div> 
+                    <div class="cut-qty-grid">
+                        <div class="shift-breakdown-container">
+                            <div class="breakdown-header">MACHINE NAME</div>
+                            <div class="breakdown-header">SHIFT A</div>
+                            <div class="breakdown-header">SHIFT B</div>
+                            <div class="breakdown-header">SHIFT C</div>
+                            
+                            <div class="breakdown-label">AUTO CRIMP</div>
+                            <div class="breakdown-value" id="auto-crimp-shift-a">0</div>
+                            <div class="breakdown-value" id="auto-crimp-shift-b">0</div>
+                            <div class="breakdown-value" id="auto-crimp-shift-c">0</div>
+
+                            <div class="breakdown-label">SEMI CRIMP</div>
+                            <div class="breakdown-value" id="semi-crimp-shift-a">0</div>
+                            <div class="breakdown-value" id="semi-crimp-shift-b">0</div>
+                            <div class="breakdown-value" id="semi-crimp-shift-c">0</div>
+
+                            <div class="breakdown-label">SOLDERING</div>
+                            <div class="breakdown-value" id="soldering-shift-a">0</div>
+                            <div class="breakdown-value" id="soldering-shift-b">0</div>
+                            <div class="breakdown-value" id="soldering-shift-c">0</div>
+                        </div>
+                        
+                        <div class="cuts-averages-list">
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">AUTO CRIMP AVG</div>
+                                <div class="cuts-average-value" id="auto-crimp-average">0</div>
+                            </div>
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">SEMI CRIMP AVG</div>
+                                <div class="cuts-average-value" id="semi-crimp-average">0</div>
+                            </div>
+                            <div class="cuts-average-container">
+                                <div class="cuts-average-label">SOLDERING AVG</div>
+                                <div class="cuts-average-value" id="soldering-average">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="bottom-row-panels">
+                <div class="panel breakdown-time">
+                    <div class="panel-header">BREAKDOWN TIME <span id="yesterday-date-display-breakdown"></span></div> 
+                    <div class="breakdown-grid-container">
+                        <div class="breakdown-section daily-section">
+                            <div class="col-label daily-label">DAILY (Hrs)</div>
+                            <div class="breakdown-data-item"><span>MSF P2</span><span class="data-value" id="msf-plant-2">0.00</span></div>
+                            <div class="breakdown-data-item"><span>MSF P7</span><span class="data-value" id="msf-plant-7">0.00</span></div>
+                            <div class="breakdown-data-item"><span>ASSEMBLY P2</span><span class="data-value" id="assembly-plant-2">0.00</span></div>
+                            <div class="breakdown-data-item"><span>ASSEMBLY P7</span><span class="data-value" id="assembly-plant-7">0.00</span></div>
+                        </div>
+
+                        <div class="breakdown-section monthly-section">
+                            <div class="col-label monthly-label">MONTHLY TOTAL (Hrs)</div>
+                            <div class="breakdown-data-item"><span>MSF P2</span><span class="data-value" id="m-total-msf-p2">0.00</span></div>
+                            <div class="breakdown-data-item"><span>MSF P7</span><span class="data-value" id="m-total-msf-p7">0.00</span></div>
+                            <div class="breakdown-data-item"><span>ASSEMBLY P2</span><span class="data-value" id="m-total-assembly-p2">0.00</span></div>
+                            <div class="breakdown-data-item"><span>ASSEMBLY P7</span><span class="data-value" id="m-total-assembly-p7">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel trend-customer-panel">
+                    <div class="panel-header">CUSTOMER PRODUCTION BREAKDOWN (MONTH) <span id="current-month-display"></span></div>
+                    <div class="customer-breakdown-list" id="customer-breakdown-list">
+                        <div class="customer-item" style="display: none;"><span>HONDA</span><span class="customer-output">0</span><span class="customer-percentage">0%</span></div>
+                    </div>
+                </div>
+                
+                <div class="panel shortcut-panel">
+                    <div class="panel-header">TREND DATA CHARTS</div>
+                    <div class="shortcut-grid">
+                        <div class="shortcut-item" data-chart="lv_production_value">LV PRODUCTION VALUE</div>
+                        <div class="shortcut-item" data-chart="productivity_schedule">PRODUCTIVITY & SCHEDULE</div>
+                        <div class="shortcut-item" data-chart="cuts_average">MACHINE CUTS AVERAGE</div>
+                        <div class="shortcut-item" data-chart="msf_breakdown">MSF BREAKDOWN TIME</div>
+                        <div class="shortcut-item" data-chart="assembly_breakdown">ASSEMBLY BREAKDOWN TIME</div>
+                        <div class="shortcut-item password-protected-btn" data-action="password-change">CHANGE PASSWORD</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="password-prompt-modal" class="modal">
+        <div class="modal-content update-modal-content small-modal">
+            <div class="modal-header">
+                <h2>AUTHENTICATION REQUIRED</h2>
+                <button type="button" class="control-btn close-modal-btn" data-modal="password-prompt-modal">X</button>
+            </div>
+            <div class="modal-body">
+                <form id="auth-form" class="password-form">
+                    <input type="hidden" id="auth-action-type">
+                    <label for="auth-password-input" class="full-width-label">Enter Password to Proceed:</label>
+                    <input type="password" id="auth-password-input" class="modal-input" required>
+                    <p id="auth-error-message" style="color: var(--error-color); margin-top: 10px; display: none; text-align: center;">Incorrect Password.</p>
+                    <div class="modal-actions full-width">
+                        <button type="submit" class="control-btn">SUBMIT</button>
+                        <button type="button" class="control-btn close-modal-btn" style="background-color: var(--warning-color);" data-modal="password-prompt-modal">CANCEL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="chart-trend-update-modal" class="modal">
+        <div class="modal-content update-modal-content small-modal">
+            <div class="modal-header">
+                <h2>CHART TREND DATA BULK UPDATE</h2>
+                <button type="button" class="control-btn close-modal-btn" data-modal="chart-trend-update-modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload an Excel file containing historical monthly data points for the trend charts.</p>
+                <div class="modal-controls-panel">
+                    <button class="control-btn" id="upload-chart-trend-btn">UPLOAD EXCEL FILE</button>
+                    <span id="chart-trend-upload-status" class="upload-status"></span>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.8em; color: var(--text-color);">**Expected Excel Column Headers (Exact Match Not Required):**</p>
+                <ul style="font-size: 0.8em; color: var(--text-color); margin-left: 20px;">
+                    <li>**Date** (e.g., 2024-10-01)</li>
+                    <li>**LV Production Value**</li>
+                    <li>**MSF P2 (Monthly Total)** / **MSF P7 (Monthly Total)**</li>
+                    <li>**Assembly P2 (Monthly Total)** / **Assembly P7 (Monthly Total)**</li>
+                    <li>**Auto Crimp Avg**, **Semi Crimp Avg**, **Soldering Avg**</li>
+                    <li>**Productivity Value**, **Schedule Average**</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="daily-update-modal" class="modal">
+        <div class="modal-content update-modal-content">
+            <div class="modal-header">
+                <h2>DAILY DATA UPDATE <span id="daily-update-date-display"></span></h2>
+                <button type="button" class="control-btn close-modal-btn" data-modal="daily-update-modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-controls-panel">
+                    <button class="control-btn" id="upload-daily-btn">UPLOAD EXCEL FILE</button>
+                    <span id="daily-upload-status" class="upload-status"></span>
+                </div>
+                <form id="daily-update-form" class="update-form">
+                    <div class="modal-field-grid">
+                        <label for="lv_production_value">LV Production Value:</label>
+                        <input type="number" id="lv_production_value" name="lv_production_value" class="modal-input" step="any" required>
+                        
+                        <label for="productivity_value">Productivity (%):</label>
+                        <input type="number" id="productivity_value" name="productivity_value" class="modal-input" step="any" min="0" max="100" required>
+                        
+                        <label for="schedule_average">Schedule Avg (%):</label>
+                        <input type="number" id="schedule_average" name="schedule_average" class="modal-input" step="any" min="0" max="100" required>
+                    </div>
+
+                    <div class="section-title">SHIFT BREAKDOWN (QTY)</div>
+                    <div class="shift-breakdown-entry-grid">
+                        <div class="breakdown-header">MACHINE</div>
+                        <div class="breakdown-header">SHIFT A</div>
+                        <div class="breakdown-header">SHIFT B</div>
+                        <div class="breakdown-header">SHIFT C</div>
+                        
+                        <div class="breakdown-label">AUTO CRIMP</div>
+                        <input type="number" id="auto_crimp_shift_a" name="auto_crimp_shift_a" class="modal-input" required>
+                        <input type="number" id="auto_crimp_shift_b" name="auto_crimp_shift_b" class="modal-input" required>
+                        <input type="number" id="auto_crimp_shift_c" name="auto_crimp_shift_c" class="modal-input" required>
+
+                        <div class="breakdown-label">SEMI CRIMP</div>
+                        <input type="number" id="semi_crimp_shift_a" name="semi_crimp_shift_a" class="modal-input" required>
+                        <input type="number" id="semi_crimp_shift_b" name="semi_crimp_shift_b" class="modal-input" required>
+                        <input type="number" id="semi_crimp_shift_c" name="semi_crimp_shift_c" class="modal-input" required>
+
+                        <div class="breakdown-label">SOLDERING</div>
+                        <input type="number" id="soldering_shift_a" name="soldering_shift_a" class="modal-input" required>
+                        <input type="number" id="soldering_shift_b" name="soldering_shift_b" class="modal-input" required>
+                        <input type="number" id="soldering_shift_c" name="soldering_shift_c" class="modal-input" required>
+                    </div>
+                    
+                    <div class="section-title">DAILY BREAKDOWN TIME (Hours)</div>
+                    <div class="breakdown-entry-grid">
+                        <div class="col-label">MSF</div>
+                        <div class="modal-field">
+                            <label for="msf_plant_2">P2:</label>
+                            <input type="number" id="msf_plant_2" name="msf_plant_2" class="modal-input" step="any" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="msf_plant_7">P7:</label>
+                            <input type="number" id="msf_plant_7" name="msf_plant_7" class="modal-input" step="any" required>
+                        </div>
+
+                        <div class="col-label">ASSEMBLY</div>
+                        <div class="modal-field">
+                            <label for="assembly_plant_2">P2:</label>
+                            <input type="number" id="assembly_plant_2" name="assembly_plant_2" class="modal-input" step="any" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="assembly_plant_7">P7:</label>
+                            <input type="number" id="assembly_plant_7" name="assembly_plant_7" class="modal-input" step="any" required>
+                        </div>
+                    </div>
+
+                    <div class="section-title">MONTHLY TOTALS (for Chart Trend)</div>
+                    <div class="breakdown-entry-grid">
+                        <div class="col-label">MSF Total</div>
+                        <div class="modal-field">
+                            <label for="m_total_msf_p2">P2:</label>
+                            <input type="number" id="m_total_msf_p2" name="m_total_msf_p2" class="modal-input" step="any" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="m_total_msf_p7">P7:</label>
+                            <input type="number" id="m_total_msf_p7" name="m_total_msf_p7" class="modal-input" step="any" required>
+                        </div>
+
+                        <div class="col-label">Assembly Total</div>
+                        <div class="modal-field">
+                            <label for="m_total_assembly_p2">P2:</label>
+                            <input type="number" id="m_total_assembly_p2" name="m_total_assembly_p2" class="modal-input" step="any" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="m_total_assembly_p7">P7:</label>
+                            <input type="number" id="m_total_assembly_p7" name="m_total_assembly_p7" class="modal-input" step="any" required>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="submit" class="control-btn" id="save-daily-btn">SAVE DAILY DATA</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="trend-update-modal" class="modal">
+        <div class="modal-content update-modal-content">
+            <div class="modal-header">
+                <h2>TREND DATA UPDATE <span id="trend-update-month-display"></span></h2>
+                <button type="button" class="control-btn close-modal-btn" data-modal="trend-update-modal">X</button>
+            </div>
+            <div class="modal-body">
+                 <div class="modal-controls-panel">
+                    <button class="control-btn" id="upload-trend-btn">UPLOAD EXCEL FILE</button>
+                    <span id="trend-upload-status" class="upload-status"></span>
+                </div>
+                
+                <form id="trend-update-form" class="update-form">
+                    <div class="trend-data-list" id="trend-data-list">
+                        <div class="section-title">Customer Breakdown List</div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="control-btn" id="add-trend-item-btn">ADD CUSTOMER</button>
+                        <button type="submit" class="control-btn" id="save-trend-btn">SAVE TREND DATA</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="password-modal" class="modal">
+        <div class="modal-content update-modal-content small-modal">
+            <div class="modal-header">
+                <h2>CHANGE PASSWORD</h2>
+                <button type="button" class="control-btn close-modal-btn" data-modal="password-modal">X</button>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form" class="password-form">
+                    <label for="current-password-input" class="full-width-label">Current Password:</label>
+                    <input type="password" id="current-password-input" class="modal-input" required>
+                    <label for="new-password-input" class="full-width-label">New Password:</label>
+                    <input type="password" id="new-password-input" class="modal-input" required>
+                    <div class="modal-actions full-width">
+                        <button type="submit" class="control-btn">SET NEW PASSWORD</button>
+                        <button type="button" class="control-btn close-modal-btn" style="background-color: var(--warning-color);" data-modal="password-modal">CANCEL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="chart-modal" class="modal">
+        <div class="modal-content chart-modal-content">
+            <div class="modal-header chart-modal-header">
+                <span id="chart-title">DATA TREND CHART</span>
+                <div class="chart-controls-panel">
+                    <span id="upload-status" class="upload-status"></span>
+                    <button type="button" class="control-btn close-chart-btn" id="close-chart-btn">X</button>
+                </div>
+            </div>
+            <div class="modal-body chart-modal-body">
+                <div class="chart-canvas-container">
+                    <canvas id="largeTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
