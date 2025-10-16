@@ -2,4 +2,5 @@ Flask
 flask-cors
 pandas
 pymongo
-dnspython # needed for srv connection string (MongoDB Atlas)
+dnspython
+gunicorn  # <-- ADD THIS LINE
